@@ -10,7 +10,7 @@ import scala.collection.mutable.Map
  */
 class DeviceDefinition(var id : String, var userAgent : String) {
 
-  var fallBack : Option[String] = None
+  var fallBack : String = "root"
 
   var isRoot : Boolean = false
 

@@ -1,19 +1,12 @@
 package org.filippodeluca.swurfl.xml
 
 import java.net.URI
-import xml.pull.{XMLEvent, EvElemStart, EvElemEnd, XMLEventReader}
 import org.filippodeluca.swurfl.{Device, ResourceData, Resource}
-import io.Source
 import java.io.InputStream
-import xml.{Text, Node}
 import org.filippodeluca.swurfl.util.Loggable
 import scala.collection.mutable.{Set => MutableSet}
 import javax.xml.parsers.SAXParserFactory
-import org.xml.sax._
-import helpers.DefaultHandler
 import java.lang.String
-import util.logging.Logged
-
 /**
  * Created by IntelliJ IDEA.
  * User: filippodeluca
@@ -29,7 +22,7 @@ class XmlResource(val uri: URI) extends Resource with Loggable {
 
     val input = getInputStream
 
-    val handler = new WurflHandler
+    val handler = new WurflSaxHandler
     val parser = SAXParserFactory.newInstance.newSAXParser
 
     parser.parse(input, handler, "UTF-8")
@@ -37,15 +30,14 @@ class XmlResource(val uri: URI) extends Resource with Loggable {
     input.close()
 
     val id = uri.toString
-    val definitions = handler.getDefinitions
+    val definitions = handler.definitions
 
     logDebug("Parsed " + definitions.size + " definitions")
 
+    val devices = createDevices(definitions)
+    devices.ensuring(_.size == definitions.size)
 
-
-
-
-    new ResourceData(id, Set[Device]())
+    new ResourceData(id, devices)
   }
 
   private def getInputStream: InputStream = {
@@ -62,53 +54,47 @@ class XmlResource(val uri: URI) extends Resource with Loggable {
 
   }
 
-  class WurflHandler extends DefaultHandler with Loggable {
 
-    private val definitions : MutableSet[DeviceDefinition] = MutableSet()
-    private var currentDefinition : DeviceDefinition = null;
+  def createDevices(definitions : Set[DeviceDefinition]) : Set[Device] = {
 
-    override def endDocument = {}
+    import scala.collection.mutable.{Map => MutableMap}
 
-    override def startDocument = {}
+    val definitionsById = definitions.foldLeft(Map[String, DeviceDefinition]()) { (m, d) => m(d.id) = d }
+    val devicesById = MutableMap[String, Device]()
 
-    override def endElement(uri : String, localName : String, qname : String) = {
+    def createDeviceIfDoesNotExist(id : String) : Device = {
 
-      qname match {
-        case "device" => definitions += currentDefinition
-        case _ => Unit
-      }
-    }
+      def createDevice(id : String) : Device = {
 
-    override def startElement(uri : String, localName : String, qname : String, attributes : Attributes) = {
+        val definition = definitionsById(id)
+        val parent : Option[Device] =
+          if(definition.fallBack=="root")
+            None
+          else
+            Some(createDeviceIfDoesNotExist(definition.fallBack))
 
-      qname match {
 
-        case "device" => {
+        // TODO I am not sure of this
+        val deviceOwnProperties = Map(definition.capabilities.toIterator.toList:_*)
+        val device = new Device(id, definition.userAgent, definition.isRoot, parent, deviceOwnProperties)
+        devicesById += id->device
 
-          val id = attributes.getValue("id")
-          val userAgent = attributes.getValue("user_agent")
-          val fallBack = attributes.getValue("fall_back")
-          val isRoot = attributes.getValue("actual_device_root") eq "true"
-
-          currentDefinition = new DeviceDefinition(id, userAgent)
-          currentDefinition.fallBack = if(fallBack !=null && !fallBack.isEmpty) Some(fallBack) else None
-          currentDefinition.isRoot = isRoot
-        }
-
-        case "capability" => {
-          currentDefinition.capabilities += attributes.getValue("name")->attributes.getValue("value")
-        }
-
-        case _ => Unit
-
+        device
       }
 
+      devicesById.getOrElse(id, createDevice(id));
+    }
+
+    for(id <- definitionsById.keys) {
+      createDeviceIfDoesNotExist(id)
     }
 
 
-    def getDefinitions : Set[DeviceDefinition] = {
-      Set[DeviceDefinition]() ++ definitions
-    }
+    val devices = Set[Device]()
+    devices ++ devicesById.values
   }
+
+
+
 
 }

@@ -15,13 +15,31 @@ import org.junit.Assert._
 class XmlResourceTest {
 
   @Test
-  def test = {
+  def parseShouldReturnNotEmptyData = {
 
     val resource = new XmlResource("classpath:///wurfl.xml");
     val data = resource.parse
 
-
     assertNotNull(data)
+    assertFalse(data.devices.isEmpty)
+  }
+
+  @Test
+  def parseShouldReturnDataWithGeneric = {
+
+    val resource = new XmlResource("classpath:///wurfl.xml");
+    val data = resource.parse
+
+    assertTrue(data.devices.find(_.id == "generic").isDefined)
+  }
+
+  @Test
+  def parseShouldReturnDataWithoutOrphanDevice = {
+
+    val resource = new XmlResource("classpath:///wurfl.xml");
+    val data = resource.parse
+
+    assertTrue(data.devices.forall(device => device.parent != None || device.id == "generic"))
   }
 
 

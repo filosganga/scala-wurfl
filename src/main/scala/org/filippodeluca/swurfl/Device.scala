@@ -9,8 +9,9 @@ import collection.MapLike
  * Time: 20.41
  * To change this template use File | Settings | File Templates.
  */
-class Device(val id : String, val userAgent : String, val parent : Device, private val ownedProperties : Map[String, String]) {
+class Device(val id : String, val userAgent : String, val isRoot : Boolean, val parent : Option[Device], private val ownedProperties : Map[String, String]) {
 
-  def get(key: String): String = ownedProperties.getOrElse(key, parent.get(key))
+  // TODO finish it
+  def get(key: String): String = ownedProperties.get(key).get
 
 }
