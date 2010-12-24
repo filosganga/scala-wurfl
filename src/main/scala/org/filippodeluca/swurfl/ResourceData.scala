@@ -1,5 +1,6 @@
 package org.filippodeluca.swurfl
 
+
 /**
  * Created by IntelliJ IDEA.
  * User: filippodeluca
@@ -11,4 +12,4 @@ package org.filippodeluca.swurfl
 
 @serializable
 @SerialVersionUID(10L)
-class ResourceData(val id : String, val devices : Set[Device])
+class ResourceData(val id : String, val devices : Set[DeviceDefinition])

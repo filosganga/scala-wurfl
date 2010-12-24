@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    This file is released under the GNU General Public License.
+    Refer to the COPYING file distributed with this package.
+
+    Copyright (c) 2008-2010 WURFL-Pro srl
+
+-->
+
+<!-- $Id: add_device_caps_patch.xml 429 2010-05-06 11:38:31Z filippo.deluca $ -->
+<wurfl_patch>
+	<devices>
+		
+		<!-- must trow exception if i isn't defined before -->
+
+		<device fall_back="device_d" id="device_d_a" user_agent="DEVICE D A">
+			<group id="group_c">
+				<capability name="capability_i" value="device_d_a_i" />
+			</group>
+		</device>
+
+	</devices>
+</wurfl_patch>

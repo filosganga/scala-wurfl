@@ -14,11 +14,21 @@ import scalaj.collection.Imports._
 
 class Headers(private val delegate : Map[String, Seq[String]]) {
 
-  def apply(key : String) = get(key)
+  def this(xs: scala.Tuple2[String, Seq[String]]*) {
+    this(Map(xs.map(a=>(a._1.toLowerCase->a._2)):_*))
+  }
 
-  def get(key : String) : Seq[String] = delegate(key.toLowerCase)
+  def apply(key: String) = get(key)
+
+  def get(key: String): Seq[String] = delegate(key.toLowerCase)
+
+  def contains(key: String): Boolean = delegate.contains(key.toLowerCase)
 
   def size : Int = delegate.size
+
+  def userAgent: Option[String] = delegate.get("user-agent").flatMap(_.headOption)
+
+  def accept: Option[String] = delegate.get("accept").flatMap(_.headOption)
 
   def withHeader(key : String, value : String) : Headers = {
 
@@ -32,7 +42,7 @@ class Headers(private val delegate : Map[String, Seq[String]]) {
 
 object Headers {
 
-  def apply(headers : Map[String, Seq[String]]) = new Headers(headers)
+  def apply(xs: scala.Tuple2[String, Seq[String]]*) = new Headers(xs:_*)
 
   def apply(request : HttpServletRequest) = {
 
@@ -47,8 +57,4 @@ object Headers {
 
     new Headers(headers)
   }
-
-
-
-
 }

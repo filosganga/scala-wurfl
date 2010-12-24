@@ -1,6 +1,10 @@
 package org.filippodeluca.swurfl
 
+import util.Loggable
 import xml.XmlResource
+import org.ardverk.collection.{StringKeyAnalyzer, PatriciaTrie}
+import scalaj.collection.Imports._
+import java.util.Date
 
 /**
  * Created by IntelliJ IDEA.
@@ -10,55 +14,57 @@ import xml.XmlResource
  * To change this template use File | Settings | File Templates.
  */
 
-trait Wurfl {
+class Wurfl(protected val devices: Set[DeviceDefinition]) extends Loggable{
 
-  protected val devices: Set[Device]
   protected val generic = devices.find(_.id == "generic").get
+  protected val trie = new PatriciaTrie[String, String](StringKeyAnalyzer.INSTANCE)
 
-  def device(headers: Headers): Device = {
+  trie.putAll(devices.foldLeft(Map[String,String]()){
+    (map, d) => map + (d.userAgent->d.id)
+  }.asJava)
 
-    val userAgent = headers.get("user-agent").head
-    devices.find(_.userAgent == userAgent).getOrElse(generic)
+
+  def device(headers: Headers): String = {
+
+    val userAgent = headers.userAgent
+
+    val start = new Date()
+    val candidates = trie.getPrefixedBy("Nokia66")
+    val end = new Date()
+
+
+//    val start = new Date()
+//    val candidate = trie.get(userAgent.get)
+//    val end = new Date()
+
+    logInfo("Found " + candidates.size + " candidates in " + (end.getTime - start.getTime) + "ms")
+
+    ""
   }
 
 }
 
 object Wurfl {
 
-  class WurflBuilder(private val root : Resource, private val patches: Resource*) {
+  class WurflBuilder(private val root: Resource, private val patches: Seq[Resource]) {
 
-    def this(pt: String) {
+    def this(rp: String, pts: Seq[String]) =
+      this(new XmlResource(rp), pts.map(new XmlResource(_)))
 
-      this(new XmlResource(pt))
-    }
 
-    def this(pt: String, pts: String*) {
-
-      this(new XmlResource(pt), pts.map(new XmlResource(_)):_*)
-    }
+    def withPatch(pc: Resource): WurflBuilder = new WurflBuilder(root, patches :+ pc)
 
     def withPatch(pt: String): WurflBuilder = withPatch(new XmlResource(pt))
 
-    def withPatch(pc: Resource): WurflBuilder = new WurflBuilder(root, patches + pc)
-
-//    def withPatches(pcs: Resource*): WurflBuilder = new WurflBuilder(root, patches ++ pcs)
-//
-//    def withPatches(pts: String*): WurflBuilder = withPatches(pts.map(new XmlResource(_)))
-
-
-
-
     def build : Wurfl = {
 
-      List
-
-      new WurflImpl(root.parse.devices)
+      new Wurfl(root.parse.devices)
     }
 
   }
 
-  def apply(root: Resource) : WurflBuilder = new WurflBuilder(root)
+  def apply(root: Resource) : WurflBuilder = new WurflBuilder(root, Seq.empty)
 
-  def apply(rootPath: String) : WurflBuilder = new WurflBuilder(new XmlResource(rootPath))
+  def apply(rp: String) : WurflBuilder = new WurflBuilder(rp, Seq.empty)
 
 }

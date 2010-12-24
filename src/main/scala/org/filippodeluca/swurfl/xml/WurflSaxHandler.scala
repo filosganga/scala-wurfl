@@ -4,6 +4,7 @@ import scala.collection.mutable.{Set => MutableSet}
 import org.xml.sax._
 import helpers.DefaultHandler
 import java.lang.String
+import org.filippodeluca.swurfl.DeviceDefinition
 
 /**
  * Created by IntelliJ IDEA.

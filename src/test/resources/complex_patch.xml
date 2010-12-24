@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    This file is released under the GNU General Public License.
+    Refer to the COPYING file distributed with this package.
+
+    Copyright (c) 2008-2010 WURFL-Pro srl
+
+-->
+
+<!-- $Id: complex_patch.xml 429 2010-05-06 11:38:31Z filippo.deluca $ -->
+<wurfl_patch>
+	<devices>
+		
+		<device fall_back="root" id="generic" user_agent="">
+			<group id="group_c">
+				<capability name="capability_i" value="i" />
+			</group>
+			<group id="group_d">
+				<capability name="capability_j" value="j" />
+				<capability name="capability_k" value="k" />
+				<capability name="capability_l" value="l" />
+			</group>
+		</device>
+		
+		<device fall_back="generic" id="device_a" user_agent="DEVICE A">
+			<group id="group_c">
+				<capability name="capability_i" value="device_a_i" />
+			</group>
+		</device>
+		
+		<device fall_back="generic" id="device_b" user_agent="DEVICE B">
+			<group id="group_d">
+				<capability name="capability_j" value="device_b_j" />
+			</group>
+		</device>
+		
+		<device fall_back="generic" id="device_d" user_agent="DEVICE D" />
+		
+		<device fall_back="device_d" id="device_d_a" user_agent="DEVICE D A">
+			<group id="group_c">
+				<capability name="capability_i" value="device_d_a_i" />
+			</group>
+		</device>
+		
+		<device fall_back="device_d" id="device_d_b" user_agent="DEVICE D B">
+			<group id="group_d">
+				<capability name="capability_j" value="device_d_b_j" />
+			</group>
+		</device>
+		
+		<device fall_back="device_d" id="device_a_b" user_agent="DEVICE A B" />
+
+	</devices>
+</wurfl_patch>

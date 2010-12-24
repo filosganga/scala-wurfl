@@ -1,12 +1,13 @@
 package org.filippodeluca.swurfl.xml
 
 import java.net.URI
-import org.filippodeluca.swurfl.{Device, ResourceData, Resource}
 import java.io.InputStream
 import org.filippodeluca.swurfl.util.Loggable
 import scala.collection.mutable.{Set => MutableSet}
 import javax.xml.parsers.SAXParserFactory
 import java.lang.String
+import org.filippodeluca.swurfl.{DeviceDefinition, Device, ResourceData, Resource}
+
 /**
  * Created by IntelliJ IDEA.
  * User: filippodeluca
@@ -34,10 +35,10 @@ class XmlResource(val uri: URI) extends Resource with Loggable {
 
     logDebug("Parsed " + definitions.size + " definitions")
 
-    val devices = createDevices(definitions)
-    devices.ensuring(_.size == definitions.size)
+    //val devices = createDevices(definitions)
+    //devices.ensuring(_.size == definitions.size)
 
-    new ResourceData(id, devices)
+    new ResourceData(id, definitions)
   }
 
   private def getInputStream: InputStream = {

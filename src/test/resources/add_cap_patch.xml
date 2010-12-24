@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    This file is released under the GNU General Public License.
+    Refer to the COPYING file distributed with this package.
+
+    Copyright (c) 2008-2010 WURFL-Pro srl
+
+-->
+
+<!-- $Id: add_cap_patch.xml 429 2010-05-06 11:38:31Z filippo.deluca $ -->
+<wurfl_patch>
+	<devices>
+		
+		<device fall_back="root" id="generic" user_agent="">
+			<group id="group_c">
+				<capability name="capability_i" value="i" />
+			</group>
+		</device>
+
+	</devices>
+</wurfl_patch>
