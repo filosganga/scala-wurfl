@@ -11,7 +11,7 @@ import collection.MapLike
  */
 class Device(val id : String, val userAgent : String, val isRoot : Boolean, val parent : Option[Device], private val ownedProperties : Map[String, String]) {
 
-  // TODO finish it
-  def get(key: String): String = ownedProperties.get(key).get
+  // TODO It sucks
+  def get(key: String): String = ownedProperties.getOrElse(key, parent.get.get(key))
 
 }

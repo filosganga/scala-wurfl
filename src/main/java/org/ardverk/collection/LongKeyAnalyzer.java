@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2009 Roger Kapsi
+ * Copyright 2005-2010 Roger Kapsi
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -16,13 +16,14 @@
 
 package org.ardverk.collection;
 
+import java.io.Serializable;
 
 /**
  * A {@link KeyAnalyzer} for {@link Long}s
  */
-public class LongKeyAnalyzer extends AbstractKeyAnalyzer<Long> {
+public class LongKeyAnalyzer extends AbstractKeyAnalyzer<Long> implements Serializable {
     
-    private static final long serialVersionUID = -4119639247588227409L;
+    private static final long serialVersionUID = -7611788114037795486L;
 
     /**
      * A singleton instance of {@link LongKeyAnalyzer}
@@ -30,14 +31,9 @@ public class LongKeyAnalyzer extends AbstractKeyAnalyzer<Long> {
     public static final LongKeyAnalyzer INSTANCE = new LongKeyAnalyzer();
     
     /**
-     * The length of an {@link Long} in bits
-     */
-    public static final int LENGTH = Long.SIZE;
-    
-    /**
      * A bit mask where the first bit is 1 and the others are zero
      */
-    private static final long MSB = 0x8000000000000000L;
+    private static final long MSB = 1 << Long.SIZE-1;
     
     /**
      * Returns a bit mask where the given bit is set
@@ -45,54 +41,30 @@ public class LongKeyAnalyzer extends AbstractKeyAnalyzer<Long> {
     private static long mask(int bit) {
         return MSB >>> bit;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int bitsPerElement() {
-        return 1;
-    }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int lengthInBits(Long key) {
-        return LENGTH;
+        return Long.SIZE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public boolean isBitSet(Long key, int bitIndex, int lengthInBits) {
+    public boolean isBitSet(Long key, int bitIndex) {
         return (key & mask(bitIndex)) != 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public int bitIndex(Long key, int offsetInBits, int lengthInBits, 
-            Long other, int otherOffsetInBits, int otherLengthInBits) {
-        
-        if (offsetInBits != 0 || otherOffsetInBits != 0) {
-            throw new IllegalArgumentException("offsetInBits=" + offsetInBits 
-                    + ", otherOffsetInBits=" + otherOffsetInBits);
-        }
-        
+    public int bitIndex(Long key, Long otherKey) {
         long keyValue = key.longValue();
-        if (keyValue == 0L) {
+        if (keyValue == 0) {
             return NULL_BIT_KEY;
         }
 
-        long otherValue = (other != null ? other.longValue() : 0L);
+        long otherValue = otherKey.longValue();
         
         if (keyValue != otherValue) {
             long xorValue = keyValue ^ otherValue;
-            for (int i = 0; i < LENGTH; i++) {
-                if ((xorValue & mask(i)) != 0L) {
+            for (int i = 0; i < Long.SIZE; i++) {
+                if ((xorValue & mask(i)) != 0) {
                     return i;
                 }
             }
@@ -100,22 +72,9 @@ public class LongKeyAnalyzer extends AbstractKeyAnalyzer<Long> {
         
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
-    
-    /**
-     * {@inheritDoc}
-     */
+
     @Override
-    public boolean isPrefix(Long prefix, int offsetInBits, 
-            int lengthInBits, Long key) {
-        
-        long value1 = (prefix.longValue() << offsetInBits);
-        long value2 = key.longValue();
-        
-        long mask = 0L;
-        for (int i = 0; i < lengthInBits; i++) {
-            mask |= (0x1L << i);
-        }
-        
-        return (value1 & mask) == (value2 & mask);
+    public boolean isPrefix(Long key, Long prefix) {
+        return key.equals(prefix);
     }
 }

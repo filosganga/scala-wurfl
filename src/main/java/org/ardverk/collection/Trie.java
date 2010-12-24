@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2009 Roger Kapsi, Sam Berlin
+ * Copyright 2005-2010 Roger Kapsi, Sam Berlin
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import org.ardverk.collection.Cursor.Decision;
 public interface Trie<K, V> extends SortedMap<K, V> {
 
     /**
-     * Returns the {@link Entry} whose key is closest in a bitwise XOR 
+     * Returns the {@link Map.Entry} whose key is closest in a bitwise XOR 
      * metric to the given key. This is NOT lexicographic closeness.
      * For example, given the keys:
      *
@@ -45,7 +45,7 @@ public interface Trie<K, V> extends SortedMap<K, V> {
      * return 'L', because the XOR distance between D &amp; L is smaller 
      * than the XOR distance between D &amp; H. 
      * 
-     * @return The {@link Entry} whose key is closest in a bitwise XOR metric
+     * @return The {@link Map.Entry} whose key is closest in a bitwise XOR metric
      * to the provided key.
      */
     public Map.Entry<K, V> select(K key);
@@ -128,60 +128,15 @@ public interface Trie<K, V> extends SortedMap<K, V> {
     public Map.Entry<K,V> traverse(Cursor<? super K, ? super V> cursor);
     
     /**
-     * Returns a view of this {@link SortedTrie} of all elements that are prefixed 
+     * Returns a view of this {@link Trie} of all elements that are prefixed 
      * by the given key.
      * 
-     * <p>In a {@link SortedTrie} with fixed size keys, this is essentially a 
+     * <p>In a {@link Trie} with fixed size keys, this is essentially a 
      * {@link #get(Object)} operation.
      * 
-     * <p>For example, if the {@link SortedTrie} contains 'Anna', 'Anael', 
+     * <p>For example, if the {@link Trie} contains 'Anna', 'Anael', 
      * 'Analu', 'Andreas', 'Andrea', 'Andres', and 'Anatole', then
      * a lookup of 'And' would return 'Andreas', 'Andrea', and 'Andres'.
      */
-    public SortedMap<K, V> getPrefixedBy(K key);
-    
-    /**
-     * Returns a view of this {@link SortedTrie} of all elements that are prefixed 
-     * by the length of the key.
-     * 
-     * <p>{@link SortedTrie}s with fixed size keys will not support this operation 
-     * (because all keys are the same length).
-     * 
-     * <p>For example, if the {@link SortedTrie} contains 'Anna', 'Anael', 'Analu', 
-     * 'Andreas', 'Andrea', 'Andres', and 'Anatole', then a lookup for 'Andrey' 
-     * and a length of 4 would return 'Andreas', 'Andrea', and 'Andres'.
-     */
-    public SortedMap<K, V> getPrefixedBy(K key, int length);
-    
-    /**
-     * Returns a view of this {@link SortedTrie} of all elements that are prefixed
-     * by the key, starting at the given offset and for the given length.
-     * 
-     * <p>{@link SortedTrie}s with fixed size keys will not support this operation 
-     * (because all keys are the same length).
-     * 
-     * <p>For example, if the {@link SortedTrie} contains 'Anna', 'Anael', 'Analu', 
-     * 'Andreas', 'Andrea', 'Andres', and 'Anatole', then a lookup for 
-     * 'Hello Andrey Smith', an offset of 6 and a length of 4 would return 
-     * 'Andreas', 'Andrea', and 'Andres'.
-     */
-    public SortedMap<K, V> getPrefixedBy(K key, int offset, int length);
-    
-    /**
-     * Returns a view of this {@link SortedTrie} of all elements that are prefixed
-     * by the number of bits in the given Key.
-     * 
-     * <p>In {@link SortedTrie}s with fixed size keys like IP addresses this method
-     * can be used to lookup partial keys. That is you can lookup all addresses
-     * that begin with '192.168' by providing the key '192.168.X.X' and a 
-     * length of 16.
-     */
-    public SortedMap<K, V> getPrefixedByBits(K key, int lengthInBits);
-    
-    /**
-     * Returns a view of this {@link SortedTrie} of all elements that are prefixed
-     * by the number of bits in the given Key.
-     */
-    public SortedMap<K, V> getPrefixedByBits(K key,
-            int offsetInBits, int lengthInBits);
+    public SortedMap<K, V> prefixMap(K prefix);
 }

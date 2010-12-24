@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2009 Roger Kapsi
+ * Copyright 2005-2010 Roger Kapsi
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -16,13 +16,15 @@
 
 package org.ardverk.collection;
 
+import java.io.Serializable;
+
 
 /**
  * A {@link KeyAnalyzer} for {@link Byte}s
  */
-public class ByteKeyAnalyzer extends AbstractKeyAnalyzer<Byte> {
+public class ByteKeyAnalyzer extends AbstractKeyAnalyzer<Byte> implements Serializable {
     
-    private static final long serialVersionUID = 3395803342983289829L;
+    private static final long serialVersionUID = -5294514513354687850L;
 
     /**
      * A singleton instance of {@link ByteKeyAnalyzer}
@@ -30,14 +32,9 @@ public class ByteKeyAnalyzer extends AbstractKeyAnalyzer<Byte> {
     public static final ByteKeyAnalyzer INSTANCE = new ByteKeyAnalyzer();
     
     /**
-     * The length of an {@link Byte} in bits
-     */
-    public static final int LENGTH = Byte.SIZE;
-    
-    /**
      * A bit mask where the first bit is 1 and the others are zero
      */
-    private static final int MSB = 0x80;
+    private static final int MSB = 1 << Byte.SIZE-1;
     
     /**
      * Returns a bit mask where the given bit is set
@@ -45,53 +42,29 @@ public class ByteKeyAnalyzer extends AbstractKeyAnalyzer<Byte> {
     private static int mask(int bit) {
         return MSB >>> bit;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int bitsPerElement() {
-        return 1;
-    }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int lengthInBits(Byte key) {
-        return LENGTH;
+        return Byte.SIZE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public boolean isBitSet(Byte key, int bitIndex, int lengthInBits) {
+    public boolean isBitSet(Byte key, int bitIndex) {
         return (key & mask(bitIndex)) != 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public int bitIndex(Byte key, int offsetInBits, int lengthInBits, 
-            Byte other, int otherOffsetInBits, int otherLengthInBits) {
-        
-        if (offsetInBits != 0 || otherOffsetInBits != 0) {
-            throw new IllegalArgumentException("offsetInBits=" + offsetInBits 
-                    + ", otherOffsetInBits=" + otherOffsetInBits);
-        }
-        
+    public int bitIndex(Byte key, Byte otherKey) {
         byte keyValue = key.byteValue();
         if (keyValue == 0) {
             return NULL_BIT_KEY;
         }
 
-        byte otherValue = (other != null ? other.byteValue() : 0);
+        byte otherValue = otherKey.byteValue();
         
         if (keyValue != otherValue) {
             int xorValue = keyValue ^ otherValue;
-            for (int i = 0; i < LENGTH; i++) {
+            for (int i = 0; i < Byte.SIZE; i++) {
                 if ((xorValue & mask(i)) != 0) {
                     return i;
                 }
@@ -100,22 +73,9 @@ public class ByteKeyAnalyzer extends AbstractKeyAnalyzer<Byte> {
         
         return KeyAnalyzer.EQUAL_BIT_KEY;
     }
-    
-    /**
-     * {@inheritDoc}
-     */
+
     @Override
-    public boolean isPrefix(Byte prefix, int offsetInBits, 
-            int lengthInBits, Byte key) {
-        
-        int value1 = (prefix.byteValue() << offsetInBits);
-        int value2 = key.byteValue();
-        
-        int mask = 0;
-        for (int i = 0; i < lengthInBits; i++) {
-            mask |= (0x1 << i);
-        }
-        
-        return (value1 & mask) == (value2 & mask);
+    public boolean isPrefix(Byte key, Byte prefix) {
+        return key.equals(prefix);
     }
 }

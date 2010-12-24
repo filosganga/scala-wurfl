@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2009 Roger Kapsi, Sam Berlin
+ * Copyright 2005-2010 Roger Kapsi, Sam Berlin
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -25,9 +25,7 @@ import java.util.Map;
  * utility methods for actual {@link Trie} implementations.
  */
 abstract class AbstractTrie<K, V> extends AbstractMap<K, V> 
-        implements Trie<K, V>, Serializable {
-    
-    private static final long serialVersionUID = 5826987063535505652L;
+        implements Trie<K, V> {
     
     /**
      * The {@link KeyAnalyzer} that's being used to build the 
@@ -35,15 +33,15 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
      */
     protected final KeyAnalyzer<? super K> keyAnalyzer;
     
+    public AbstractTrie() {
+        this(DefaultKeyAnalyzer.singleton());
+    }
+    
     /** 
      * Constructs a new {@link Trie} using the given {@link KeyAnalyzer} 
      */
     public AbstractTrie(KeyAnalyzer<? super K> keyAnalyzer) {
-        if (keyAnalyzer == null) {
-            throw new NullPointerException("keyAnalyzer");
-        }
-        
-        this.keyAnalyzer = keyAnalyzer;
+        this.keyAnalyzer = Tries.notNull(keyAnalyzer, "keyAnalyzer");
     }
     
     /**
@@ -53,31 +51,18 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
         return keyAnalyzer;
     }
     
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public K selectKey(K key) {
         Map.Entry<K, V> entry = select(key);
-        if (entry == null) {
-            return null;
-        }
-        return entry.getKey();
+        return entry != null ? entry.getKey() : null;
     }
     
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public V selectValue(K key) {
         Map.Entry<K, V> entry = select(key);
-        if (entry == null) {
-            return null;
-        }
-        return entry.getValue();
+        return entry != null ? entry.getValue() : null;
     }
-    
-    /**
-     * {@inheritDoc}
-     */
+        
     @Override
     public String toString() {
         StringBuilder buffer = new StringBuilder();
@@ -87,15 +72,6 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
         }
         buffer.append("}\n");
         return buffer.toString();
-    }
-    
-    /**
-     * A utility method to cast keys. It actually doesn't
-     * cast anything. It's just fooling the compiler!
-     */
-    @SuppressWarnings("unchecked")
-    final K castKey(Object key) {
-        return (K)key;
     }
     
     /**
@@ -112,33 +88,42 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
     }
     
     /**
-     * Returns the number of bits per element in the key
-     * 
-     * @see KeyAnalyzer#bitsPerElement()
-     */
-    final int bitsPerElement() {
-        return keyAnalyzer.bitsPerElement();
-    }
-    
-    /**
      * Returns whether or not the given bit on the 
      * key is set or false if the key is null.
      * 
-     * @see KeyAnalyzer#isBitSet(Object, int, int)
+     * @see KeyAnalyzer#isBitSet(Object, int)
      */
-    final boolean isBitSet(K key, int bitIndex, int lengthInBits) {
+    final boolean isBitSet(K key, int bitIndex) {
         if (key == null) { // root's might be null!
             return false;
         }
-        return keyAnalyzer.isBitSet(key, bitIndex, lengthInBits);
+        return keyAnalyzer.isBitSet(key, bitIndex);
     }
     
     /**
-     * Utility method for calling {@link KeyAnalyzer#bitIndex(Object, int, int, Object, int, int)}
+     * Utility method for calling {@link KeyAnalyzer#bitIndex(Object, Object)}
      */
-    final int bitIndex(K key, K foundKey) {
-        return keyAnalyzer.bitIndex(key, 0, lengthInBits(key), 
-                foundKey, 0, lengthInBits(foundKey));
+    final int bitIndex(K key, K otherKey) {
+        if (key != null && otherKey != null) {
+            return keyAnalyzer.bitIndex(key, otherKey);            
+        } else if (key != null && otherKey == null) {
+            return bitIndex(key);
+        } else if (key == null && otherKey != null) {
+            return bitIndex(otherKey);
+        }
+        
+        return KeyAnalyzer.NULL_BIT_KEY;
+    }
+    
+    private int bitIndex(K key) {
+        int lengthInBits = lengthInBits(key);
+        for (int i = 0; i < lengthInBits; i++) {
+            if (isBitSet(key, i)) {
+                return i;
+            }
+        }
+        
+        return KeyAnalyzer.NULL_BIT_KEY;
     }
     
     /**
@@ -190,25 +175,16 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
             return setValue(value);
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public K getKey() {
             return key;
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public V getValue() {
             return value;
         }
-
-        /**
-         * {@inheritDoc}
-         */
+        
         @Override
         public V setValue(V value) {
             V previous = this.value;
@@ -216,36 +192,27 @@ abstract class AbstractTrie<K, V> extends AbstractMap<K, V>
             return previous;
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public int hashCode() {
             return hashCode;
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public boolean equals(Object o) {
             if (o == this) {
                 return true;
-            } else if (!(o instanceof Map.Entry)) {
+            } else if (!(o instanceof Map.Entry<?, ?>)) {
                 return false;
             }
             
             Map.Entry<?, ?> other = (Map.Entry<?, ?>)o;
-            if (Tries.compare(key, other.getKey()) 
-                    && Tries.compare(value, other.getValue())) {
+            if (Tries.areEqual(key, other.getKey()) 
+                    && Tries.areEqual(value, other.getValue())) {
                 return true;
             }
             return false;
         }
         
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public String toString() {
             return key + "=" + value;

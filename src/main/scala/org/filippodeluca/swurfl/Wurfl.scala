@@ -2,9 +2,11 @@ package org.filippodeluca.swurfl
 
 import util.Loggable
 import xml.XmlResource
-import org.ardverk.collection.{StringKeyAnalyzer, PatriciaTrie}
 import scalaj.collection.Imports._
-import java.util.Date
+import collection.mutable
+import java.util.Map.Entry
+import org.ardverk.collection.{Trie, Cursor, StringKeyAnalyzer, PatriciaTrie}
+import Cursor.Decision
 
 /**
  * Created by IntelliJ IDEA.
@@ -14,22 +16,65 @@ import java.util.Date
  * To change this template use File | Settings | File Templates.
  */
 
-class Wurfl(protected val devices: Set[DeviceDefinition]) extends Loggable{
+class Wurfl(protected val repository: Repository) extends Loggable {
 
-  protected val generic = devices.find(_.id == "generic").get
-  protected val trie = new PatriciaTrie[String, String](StringKeyAnalyzer.INSTANCE)
+  protected val prefixTrie = createPrefixTrie()
+  protected val suffixTrie = createSuffixTrie()
 
-  trie.putAll(devices.foldLeft(Map[String,String]()){
-    (map, d) => map + (d.userAgent->d.id)
-  }.asJava)
+  def device(headers: Headers): Device = {
 
-
-  def device(headers: Headers): String = {
-
-    val userAgent = headers.userAgent
+    val userAgent = headers.userAgent.get
 
 
-    trie.get(userAgent.get)
+//    val candidates = mutable.ListBuffer[(String,String)]()
+//    val cursor = new Cursor[String, String] {
+//      def select(entry: Entry[_ <: String, _ <: String])  = {
+//        candidates + (entry.getKey->entry.getValue)
+//
+//        // TODO implement a strategy
+//        Decision.EXIT
+//      }
+//    }
+//    trie.select(userAgent, cursor)
+//    candidates.head._2
+
+    val id = prefixTrie.get(userAgent)
+
+    device(id)
+  }
+
+  // TODO cache it
+  def device(id: String): Device = {
+    if(id == repository.generic.id) {
+      new Device(id, repository.generic.userAgent, repository.generic.isRoot, None, repository.generic.capabilities.toMap)
+    }
+    else {
+      val definition = repository.definitions(id);
+      new Device(definition.id, definition.userAgent, definition.isRoot, Some(device(definition.fallBack)), definition.capabilities.toMap)
+    }
+
+  }
+
+  private def createPrefixTrie(): Trie[String, String] = {
+
+    val trie = new PatriciaTrie[String, String](StringKeyAnalyzer.INSTANCE)
+
+    trie.putAll(repository.definitions.values.foldLeft(Map[String,String]()){
+      (map, d) => map + (d.userAgent->d.id)
+    }.asJava)
+
+    trie
+  }
+
+  private def createSuffixTrie(): Trie[String, String] = {
+
+    val trie = new PatriciaTrie[String, String](StringKeyAnalyzer.INSTANCE)
+
+    trie.putAll(repository.definitions.values.foldLeft(Map[String,String]()){
+      (map, d) => map + (d.userAgent.reverse->d.id)
+    }.asJava)
+
+    trie
   }
 
 }
@@ -47,8 +92,7 @@ object Wurfl {
     def withPatch(pt: String): WurflBuilder = withPatch(new XmlResource(pt))
 
     def build : Wurfl = {
-
-      new Wurfl(root.parse.devices)
+      new Wurfl(new Repository(root, patches: _*))
     }
 
   }

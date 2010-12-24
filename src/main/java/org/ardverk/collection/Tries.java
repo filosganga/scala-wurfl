@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2009 Roger Kapsi
+ * Copyright 2005-2010 Roger Kapsi
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -30,14 +30,64 @@ import java.util.SortedMap;
  */
 public class Tries {
 
-    private Tries() {}
-    
+    /** 
+     * Returns true if bitIndex is a {@link KeyAnalyzer#OUT_OF_BOUNDS_BIT_KEY}
+     */
+    static boolean isOutOfBoundsIndex(int bitIndex) {
+        return bitIndex == KeyAnalyzer.OUT_OF_BOUNDS_BIT_KEY;
+    }
+
+    /** 
+     * Returns true if bitIndex is a {@link KeyAnalyzer#EQUAL_BIT_KEY}
+     */
+    static boolean isEqualBitKey(int bitIndex) {
+        return bitIndex == KeyAnalyzer.EQUAL_BIT_KEY;
+    }
+
+    /** 
+     * Returns true if bitIndex is a {@link KeyAnalyzer#NULL_BIT_KEY} 
+     */
+    static boolean isNullBitKey(int bitIndex) {
+        return bitIndex == KeyAnalyzer.NULL_BIT_KEY;
+    }
+
+    /** 
+     * Returns true if the given bitIndex is valid. Indices 
+     * are considered valid if they're between 0 and 
+     * {@link Integer#MAX_VALUE}
+     */
+    static boolean isValidBitIndex(int bitIndex) {
+        return 0 <= bitIndex && bitIndex <= Integer.MAX_VALUE;
+    }
+
     /**
      * Returns true if both values are either null or equal
      */
-    static boolean compare(Object a, Object b) {
+    static boolean areEqual(Object a, Object b) {
         return (a == null ? b == null : a.equals(b));
     }
+
+    /**
+     * Throws a {@link NullPointerException} with the given message if 
+     * the argument is null.
+     */
+    static <T> T notNull(T o, String message) {
+        if (o == null) {
+            throw new NullPointerException(message);
+        }
+        return o;
+    }
+
+    /**
+     * A utility method to cast keys. It actually doesn't
+     * cast anything. It's just fooling the compiler!
+     */
+    @SuppressWarnings("unchecked")
+    static <K> K cast(Object key) {
+        return (K)key;
+    }
+    
+    private Tries() {}
     
     /**
      * Returns a synchronized instance of a {@link Trie}
@@ -45,10 +95,6 @@ public class Tries {
      * @see Collections#synchronizedMap(Map)
      */
     public static <K, V> Trie<K, V> synchronizedTrie(Trie<K, V> trie) {
-        if (trie == null) {
-            throw new NullPointerException("trie");
-        }
-        
         if (trie instanceof SynchronizedTrie) {
             return trie;
         }
@@ -62,10 +108,6 @@ public class Tries {
      * @see Collections#unmodifiableMap(Map)
      */
     public static <K, V> Trie<K, V> unmodifiableTrie(Trie<K, V> trie) {
-        if (trie == null) {
-            throw new NullPointerException("trie");
-        }
-        
         if (trie instanceof UnmodifiableTrie) {
             return trie;
         }
@@ -83,11 +125,7 @@ public class Tries {
         private final Trie<K, V> delegate;
         
         public SynchronizedTrie(Trie<K, V> delegate) {
-            if (delegate == null) {
-                throw new NullPointerException("delegate");
-            }
-            
-            this.delegate = delegate;
+            this.delegate = Tries.notNull(delegate, "delegate");
         }
 
         @Override
@@ -203,35 +241,11 @@ public class Tries {
         public synchronized SortedMap<K, V> headMap(K toKey) {
             return new SynchronizedSortedMap<K, V>(this, delegate.headMap(toKey));
         }
-        
-        @Override
-        public synchronized SortedMap<K, V> getPrefixedBy(K key, int offset, int length) {
-            return new SynchronizedSortedMap<K, V>(this, delegate.getPrefixedBy(key, offset, length));
-        }
 
         @Override
-        public synchronized SortedMap<K, V> getPrefixedBy(K key, int length) {
+        public synchronized SortedMap<K, V> prefixMap(K prefix) {
             return new SynchronizedSortedMap<K, V>(this, 
-                    delegate.getPrefixedBy(key, length));
-        }
-
-        @Override
-        public synchronized SortedMap<K, V> getPrefixedBy(K key) {
-            return new SynchronizedSortedMap<K, V>(this, 
-                    delegate.getPrefixedBy(key));
-        }
-
-        @Override
-        public synchronized SortedMap<K, V> getPrefixedByBits(K key, int lengthInBits) {
-            return new SynchronizedSortedMap<K, V>(this, 
-                    delegate.getPrefixedByBits(key, lengthInBits));
-        }
-
-        @Override
-        public synchronized SortedMap<K, V> getPrefixedByBits(K key, 
-                int offsetInBits, int lengthInBits) {
-            return new SynchronizedSortedMap<K, V>(this, 
-                    delegate.getPrefixedByBits(key, offsetInBits, lengthInBits));
+                    delegate.prefixMap(prefix));
         }
 
         @Override
@@ -266,28 +280,20 @@ public class Tries {
         
         private final Collection<E> delegate;
         
-        public SynchronizedCollection(final Object lock, final Collection<E> delegate) {
-            if (lock == null) {
-                throw new NullPointerException("lock");
-            }
-            
-            if (delegate == null) {
-                throw new NullPointerException("delegate");
-            }
-            
-            this.lock = lock;
-            this.delegate = delegate;
+        public SynchronizedCollection(Object lock, Collection<E> delegate) {
+            this.lock = Tries.notNull(lock, "lock");
+            this.delegate = Tries.notNull(delegate, "delegate");
         }
 
         @Override
-        public boolean add(final E e) {
+        public boolean add(E e) {
             synchronized (lock) {
                 return delegate.add(e);
             }
         }
 
         @Override
-        public boolean addAll(final Collection<? extends E> c) {
+        public boolean addAll(Collection<? extends E> c) {
             synchronized (lock) {
                 return delegate.addAll(c);
             }
@@ -301,14 +307,14 @@ public class Tries {
         }
 
         @Override
-        public boolean contains(final Object o) {
+        public boolean contains(Object o) {
             synchronized (lock) {
                 return delegate.contains(o);
             }
         }
 
         @Override
-        public boolean containsAll(final Collection<?> c) {
+        public boolean containsAll(Collection<?> c) {
             synchronized (lock) {
                 return delegate.containsAll(c);
             }
@@ -329,21 +335,21 @@ public class Tries {
         }
 
         @Override
-        public boolean remove(final Object o) {
+        public boolean remove(Object o) {
             synchronized (lock) {
                 return delegate.remove(o);
             }
         }
 
         @Override
-        public boolean removeAll(final Collection<?> c) {
+        public boolean removeAll(Collection<?> c) {
             synchronized (lock) {
                 return delegate.removeAll(c);
             }
         }
 
         @Override
-        public boolean retainAll(final Collection<?> c) {
+        public boolean retainAll(Collection<?> c) {
             synchronized (lock) {
                 return delegate.retainAll(c);
             }
@@ -364,7 +370,7 @@ public class Tries {
         }
 
         @Override
-        public <T> T[] toArray(final T[] a) {
+        public <T> T[] toArray(T[] a) {
             synchronized (lock) {
                 return delegate.toArray(a);
             }
@@ -417,16 +423,8 @@ public class Tries {
         private final SortedMap<K, V> delegate;
         
         public SynchronizedSortedMap(Object lock, SortedMap<K, V> delegate) {
-            if (lock == null) {
-                throw new NullPointerException("lock");
-            }
-            
-            if (delegate == null) {
-                throw new NullPointerException("delegate");
-            }
-            
-            this.lock = lock;
-            this.delegate = delegate;
+            this.lock = Tries.notNull(lock, "lock");
+            this.delegate = Tries.notNull(delegate, "delegate");
         }
 
         @Override
@@ -591,11 +589,7 @@ public class Tries {
         private final Trie<K, V> delegate;
         
         public UnmodifiableTrie(Trie<K, V> delegate) {
-            if (delegate == null) {
-                throw new NullPointerException("delegate");
-            }
-            
-            this.delegate = delegate;
+            this.delegate = Tries.notNull(delegate, "delegate");
         }
         
         @Override
@@ -731,36 +725,11 @@ public class Tries {
         public SortedMap<K, V> tailMap(K fromKey) {
             return Collections.unmodifiableSortedMap(delegate.tailMap(fromKey));
         }
-        
-        @Override
-        public SortedMap<K, V> getPrefixedBy(K key, int offset, int length) {
-            return Collections.unmodifiableSortedMap(
-                    delegate.getPrefixedBy(key, offset, length));
-        }
 
         @Override
-        public SortedMap<K, V> getPrefixedBy(K key, int length) {
+        public SortedMap<K, V> prefixMap(K prefix) {
             return Collections.unmodifiableSortedMap(
-                    delegate.getPrefixedBy(key, length));
-        }
-
-        @Override
-        public SortedMap<K, V> getPrefixedBy(K key) {
-            return Collections.unmodifiableSortedMap(
-                    delegate.getPrefixedBy(key));
-        }
-
-        @Override
-        public SortedMap<K, V> getPrefixedByBits(K key, int lengthInBits) {
-            return Collections.unmodifiableSortedMap(
-                    delegate.getPrefixedByBits(key, lengthInBits));
-        }
-        
-        @Override
-        public SortedMap<K, V> getPrefixedByBits(K key, int offsetInBits,
-                int lengthInBits) {
-            return Collections.unmodifiableSortedMap(
-                    delegate.getPrefixedByBits(key, offsetInBits, lengthInBits));
+                    delegate.prefixMap(prefix));
         }
 
         @Override

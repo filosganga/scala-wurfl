@@ -35,7 +35,6 @@ class WurflTest extends Loggable {
     val wurfl = Wurfl("classpath:///root.xml").withPatch("classpath:///add_device_patch.xml").withPatch("classpath:///add_cap_patch.xml").build
   }
 
-  @Test
   def trieShouldBeSmartEnough {
 
     val wurfl = Wurfl("classpath:///wurfl.xml").build
@@ -48,6 +47,23 @@ class WurflTest extends Loggable {
     val end = new Date()
 
     logInfo("Found " + uas.size + " uas in " + (end.getTime - start.getTime) + "ms")
+
+  }
+
+    @Test
+  def deviceShouldBeSmartEnough {
+
+    val wurfl = Wurfl("classpath:///wurfl.xml").build
+
+
+    val ua = "MOT-RAZRV3XXR_J/97.04.30R BER2.2 Mozilla/4.0 (compatible; MSIE 6.0; 13003290) Profile/MIDP-2.0 Configuration/CLDC-1.1  Opera 8.60 [en]"
+    //val ua = "Nokia6"
+
+    val start = new Date
+    val id = wurfl.device(Headers("user-agent"->List(ua)))
+    val end = new Date
+
+    logInfo("Found " + id + " in " + (end.getTime - start.getTime) + "ms")
 
   }
 
