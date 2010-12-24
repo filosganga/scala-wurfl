@@ -2,6 +2,9 @@ package org.filippodeluca.swurfl
 
 import org.junit.Test
 import org.junit.Assert._
+import io.Source
+import java.util.Date
+import util.Loggable
 
 /**
  * Created by IntelliJ IDEA.
@@ -12,7 +15,7 @@ import org.junit.Assert._
  */
 
 @Test
-class WurflTest {
+class WurflTest extends Loggable {
 
   @Test
   def create {
@@ -36,7 +39,15 @@ class WurflTest {
   def trieShouldBeSmartEnough {
 
     val wurfl = Wurfl("classpath:///wurfl.xml").build
-    wurfl.device(Headers("user-agent"->List("MOT-RAZRV3XXR_J/97.04.30R BER2.2 Mozilla/4.0 (compatible; MSIE 6.0; 13003290) Profile/MIDP-2.0 Configuration/CLDC-1.1  Opera 8.60 [en]")))
+
+
+    val uas = Source.fromFile("/Users/filippodeluca/tmp/handsets-ua-orig.txt", "UTF-8").getLines
+
+    val start = new Date()
+    uas.foreach(ua => wurfl.device(Headers("user-agent"->List(ua))))
+    val end = new Date()
+
+    logInfo("Found " + uas.size + " uas in " + (end.getTime - start.getTime) + "ms")
 
   }
 

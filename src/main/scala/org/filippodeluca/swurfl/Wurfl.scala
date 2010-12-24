@@ -28,18 +28,8 @@ class Wurfl(protected val devices: Set[DeviceDefinition]) extends Loggable{
 
     val userAgent = headers.userAgent
 
-    val start = new Date()
-    val candidates = trie.getPrefixedBy("Nokia66")
-    val end = new Date()
 
-
-//    val start = new Date()
-//    val candidate = trie.get(userAgent.get)
-//    val end = new Date()
-
-    logInfo("Found " + candidates.size + " candidates in " + (end.getTime - start.getTime) + "ms")
-
-    ""
+    trie.get(userAgent.get)
   }
 
 }
