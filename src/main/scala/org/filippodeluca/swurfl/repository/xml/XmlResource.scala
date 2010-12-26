@@ -1,12 +1,14 @@
-package org.filippodeluca.swurfl.xml
+package org.filippodeluca.swurfl.repository.xml
 
 import java.net.URI
 import java.io.InputStream
-import org.filippodeluca.swurfl.util.Loggable
 import scala.collection.mutable.{Set => MutableSet}
 import javax.xml.parsers.SAXParserFactory
-import java.lang.String
-import org.filippodeluca.swurfl._
+
+import org.filippodeluca.swurfl.{util, repository}
+import util.Loggable
+import repository.{Resource, ResourceData}
+import io.Source
 
 /**
  * Created by IntelliJ IDEA.
@@ -41,6 +43,7 @@ class XmlResource(val uri: URI) extends Resource with Loggable {
     new ResourceData(id, definitions)
   }
 
+  // TODO use scala.io.Source?
   private def getInputStream: InputStream = {
 
     uri.getScheme.toLowerCase match {
@@ -54,48 +57,5 @@ class XmlResource(val uri: URI) extends Resource with Loggable {
     }
 
   }
-
-
-  def createDevices(definitions : Set[DeviceDefinition]) : Set[Device] = {
-
-    import scala.collection.mutable.{Map => MutableMap}
-
-    val definitionsById = definitions.foldLeft(Map[String, DeviceDefinition]()) { (m, d) => m(d.id) = d }
-    val devicesById = MutableMap[String, Device]()
-
-    def createDeviceIfDoesNotExist(id : String) : Device = {
-
-      def createDevice(id : String) : Device = {
-
-        val definition = definitionsById(id)
-        val parent : Option[Device] =
-          if(definition.fallBack=="root")
-            None
-          else
-            Some(createDeviceIfDoesNotExist(definition.fallBack))
-
-
-        // TODO I am not sure of this
-        val deviceOwnProperties = Map(definition.capabilities.toIterator.toList:_*)
-        val device = new Device(id, definition.userAgent, definition.isRoot, parent, deviceOwnProperties)
-        devicesById += id->device
-
-        device
-      }
-
-      devicesById.getOrElse(id, createDevice(id));
-    }
-
-    for(id <- definitionsById.keys) {
-      createDeviceIfDoesNotExist(id)
-    }
-
-
-    val devices = Set[Device]()
-    devices ++ devicesById.values
-  }
-
-
-
 
 }

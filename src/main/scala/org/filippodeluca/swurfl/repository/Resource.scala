@@ -1,7 +1,5 @@
 package org.filippodeluca.swurfl.repository
 
-import org.filippodeluca.swurfl.ResourceData
-
 /**
  * Created by IntelliJ IDEA.
  * User: filippodeluca

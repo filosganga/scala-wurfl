@@ -1,10 +1,11 @@
-package org.filippodeluca.swurfl.xml
+package org.filippodeluca.swurfl.repository.xml
 
 import scala.collection.mutable.{Set => MutableSet}
 import org.xml.sax._
 import helpers.DefaultHandler
 import java.lang.String
-import org.filippodeluca.swurfl.DeviceDefinition
+
+import org.filippodeluca.swurfl.repository.DeviceDefinition
 
 /**
  * Created by IntelliJ IDEA.

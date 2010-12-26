@@ -24,19 +24,18 @@ class Headers(private val delegate : Map[String, Seq[String]]) {
 
   def contains(key: String): Boolean = delegate.contains(key.toLowerCase)
 
-  def size : Int = delegate.size
+  def size: Int = delegate.size
 
   def userAgent: Option[String] = delegate.get("user-agent").flatMap(_.headOption)
 
   def accept: Option[String] = delegate.get("accept").flatMap(_.headOption)
 
-  def withHeader(key : String, value : String) : Headers = {
+  def withHeader(name: String, value: String): Headers = {
 
-    var values = delegate.getOrElse(key, List());
-    value :+ values
-
-    new Headers(delegate.updated(key.toLowerCase, values))
+    new Headers(delegate.updated(name.toLowerCase, delegate.getOrElse(name.toLowerCase, Seq[String]()) :+ value))
   }
+
+  def withUserAgent(ua: String): Headers = withHeader("user-agent", ua)
 
 }
 
@@ -44,6 +43,9 @@ object Headers {
 
   def apply(xs: scala.Tuple2[String, Seq[String]]*) = new Headers(xs:_*)
 
+  def fromUserAgent(ua: String) = new Headers("User-Agent"->List(ua))
+
+  // TODO Move this to another package
   def apply(request : HttpServletRequest) = {
 
     var headers : Map[String, Seq[String]] = Map();

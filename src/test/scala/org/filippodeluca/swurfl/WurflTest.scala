@@ -43,7 +43,7 @@ class WurflTest extends Loggable {
     val uas = Source.fromFile("/Users/filippodeluca/tmp/handsets-ua-orig.txt", "UTF-8").getLines
 
     val start = new Date()
-    uas.foreach(ua => wurfl.device(Headers("user-agent"->List(ua))))
+    uas.foreach(ua => wurfl.deviceForHeaders(Headers("user-agent"->List(ua))))
     val end = new Date()
 
     logInfo("Found " + uas.size + " uas in " + (end.getTime - start.getTime) + "ms")
@@ -60,7 +60,7 @@ class WurflTest extends Loggable {
     //val ua = "Nokia6"
 
     val start = new Date
-    val id = wurfl.device(Headers("user-agent"->List(ua)))
+    val id = wurfl.deviceForHeaders(Headers("user-agent"->List(ua)))
     val end = new Date
 
     logInfo("Found " + id + " in " + (end.getTime - start.getTime) + "ms")

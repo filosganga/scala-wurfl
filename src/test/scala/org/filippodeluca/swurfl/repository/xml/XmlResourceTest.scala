@@ -1,4 +1,4 @@
-package org.filippodeluca.swurfl.xml
+package org.filippodeluca.swurfl.repository.xml
 
 import org.junit.Test
 import org.junit.Assert._
@@ -39,7 +39,7 @@ class XmlResourceTest {
     val resource = new XmlResource("classpath:///wurfl.xml");
     val data = resource.parse
 
-    assertTrue(data.devices.forall(device => device.parent != None || device.id == "generic"))
+    assertTrue(data.devices.forall(device => device.fallBack != None || device.id == "generic"))
   }
 
 

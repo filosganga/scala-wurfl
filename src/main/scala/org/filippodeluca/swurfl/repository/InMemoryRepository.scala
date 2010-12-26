@@ -13,19 +13,19 @@ import collection.{Iterator, mutable}
 
 class InMemoryRepository(root: Resource, patches: Resource*) extends Repository {
 
-  val definitions = createDefinitions(root, patches)
+  private val definitions = createDefinitions(root, patches)
 
-  val generic: DeviceDefinition = definitions("generic")
+  override def id: String = "TBD"
 
-  def get(id: String): Option[DeviceDefinition] = {
-    definitions.get(id)
-  }
+  override val generic: DeviceDefinition = definitions("generic")
 
-  def -(key: String): Map[String, DeviceDefinition] = definitions - key
+  override def -(key: String): Map[String, DeviceDefinition] = definitions - key
 
-  def iterator: Iterator[(String, DeviceDefinition)] = definitions.iterator
+  override def iterator: Iterator[(String, DeviceDefinition)] = definitions.iterator
 
-  def +[B1 >: DeviceDefinition](kv: (String, B1)): Map[String, B1] = definitions + kv
+  override def get(key: String): Option[DeviceDefinition] = definitions.get(key)
+
+  override def +[B1 >: DeviceDefinition](kv: (String, B1)): Map[String, B1] = definitions + kv
 
   private def createDefinitions(root: Resource, patches: Seq[Resource]): Map[String, DeviceDefinition] = {
 

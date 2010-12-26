@@ -1,11 +1,10 @@
 package org.filippodeluca.swurfl
 
+import matching.Matcher
+import repository.xml.XmlResource
+import repository.{InMemoryRepository, Repository, Resource}
 import util.Loggable
-import xml.XmlResource
-import scalaj.collection.Imports._
-import org.ardverk.collection.{Trie, StringKeyAnalyzer, PatriciaTrie}
-import org.filippodeluca.swurfl.matching.Matcher
-import org.filippodeluca.swurfl.{Resource, Resource, Resource, Resource}
+
 
 /**
  * Created by IntelliJ IDEA.
@@ -17,13 +16,8 @@ import org.filippodeluca.swurfl.{Resource, Resource, Resource, Resource}
 
 class Wurfl(protected val repository: Repository) extends Matcher with Loggable {
 
-  protected val prefixTrie = createPrefixTrie()
-  protected val suffixTrie = createSuffixTrie()
-
   def deviceForHeaders(headers: Headers): Device = {
-
-    val deviceId = deviceId(headers);
-    device(deviceId);
+    device(deviceId(headers));
   }
 
   // TODO cache it
