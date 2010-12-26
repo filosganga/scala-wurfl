@@ -14,7 +14,11 @@ import util.Loggable
  * To change this template use File | Settings | File Templates.
  */
 
-class Wurfl(protected val repository: Repository) extends Matcher with Loggable {
+trait Wurfl extends Matcher with Loggable {
+
+  protected val repository: Repository
+
+  init(repository.values)
 
   def deviceForHeaders(headers: Headers): Device = {
     device(deviceId(headers));
@@ -31,29 +35,5 @@ class Wurfl(protected val repository: Repository) extends Matcher with Loggable 
     }
 
   }
-
-}
-
-object Wurfl {
-
-  class WurflBuilder(private val root: Resource, private val patches: Seq[Resource]) {
-
-    def this(rp: String, pts: Seq[String]) =
-      this(new XmlResource(rp), pts.map(new XmlResource(_)))
-
-
-    def withPatch(pc: Resource): WurflBuilder = new WurflBuilder(root, patches :+ pc)
-
-    def withPatch(pt: String): WurflBuilder = withPatch(new XmlResource(pt))
-
-    def build : Wurfl = {
-      new Wurfl(new InMemoryRepository(root, patches: _*))
-    }
-
-  }
-
-  def apply(root: Resource) : WurflBuilder = new WurflBuilder(root, Seq.empty)
-
-  def apply(rp: String) : WurflBuilder = new WurflBuilder(rp, Seq.empty)
 
 }

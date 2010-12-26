@@ -5,8 +5,7 @@ import org.ardverk.collection.{Trie, StringKeyAnalyzer, PatriciaTrie}
 
 
 import org.filippodeluca.swurfl.Headers
-import org.filippodeluca.swurfl.repository.Repository
-
+import org.filippodeluca.swurfl.repository.{DeviceDefinition, Repository}
 
 /**
  * Created by IntelliJ IDEA.
@@ -20,8 +19,8 @@ trait Matcher {
 
   protected val repository: Repository
 
-  private val prefixTrie = createPrefixTrie()
-  private val suffixTrie = createSuffixTrie()
+  private val prefixTrie = new PatriciaTrie[String, String](StringKeyAnalyzer.INSTANCE)
+  private val suffixTrie = new PatriciaTrie[String, String](StringKeyAnalyzer.INSTANCE)
 
   protected def deviceId(headers: Headers): String = {
 
@@ -50,27 +49,15 @@ trait Matcher {
     id
   }
 
-  private def createPrefixTrie(): Trie[String, String] = {
+  protected def init(devices: Traversable[DeviceDefinition]) {
 
-    val trie = new PatriciaTrie[String, String](StringKeyAnalyzer.INSTANCE)
-
-    trie.putAll(repository.values.foldLeft(Map[String, String]()) {
+    prefixTrie.putAll(devices.foldLeft(Map[String, String]()) {
       (map, d) => map + (d.userAgent -> d.id)
     }.asJava)
 
-    trie
-  }
-
-  private def createSuffixTrie(): Trie[String, String] = {
-
-    val trie = new PatriciaTrie[String, String](StringKeyAnalyzer.INSTANCE)
-
-    trie.putAll(repository.values.foldLeft(Map[String, String]()) {
+    suffixTrie.putAll(devices.foldLeft(Map[String, String]()) {
       (map, d) => map + (d.userAgent.reverse -> d.id)
     }.asJava)
 
-    trie
   }
-
-
 }

@@ -20,27 +20,27 @@ class WurflTest extends Loggable {
   @Test
   def create {
 
-    val wurfl = Wurfl("classpath:///root.xml").build
+    val wurfl = WurflBuilder("classpath:///root.xml").build
   }
 
   @Test
   def createWithOnePatch {
 
-    val wurfl = Wurfl("classpath:///root.xml").withPatch("classpath:///add_device_patch.xml").build
+    val wurfl = WurflBuilder("classpath:///root.xml").withPatch("classpath:///add_device_patch.xml").build
   }
 
   @Test
   def createWithMultiplePatches {
 
-    val wurfl = Wurfl("classpath:///root.xml").withPatch("classpath:///add_device_patch.xml").withPatch("classpath:///add_cap_patch.xml").build
+    val wurfl = WurflBuilder("classpath:///root.xml").withPatch("classpath:///add_device_patch.xml").withPatch("classpath:///add_cap_patch.xml").build
   }
 
   def trieShouldBeSmartEnough {
 
-    val wurfl = Wurfl("classpath:///wurfl.xml").build
+    val wurfl = WurflBuilder("classpath:///wurfl.xml").build
 
 
-    val uas = Source.fromFile("/Users/filippodeluca/tmp/handsets-ua-orig.txt", "UTF-8").getLines
+    val uas = Source.fromFile("TBD", "UTF-8").getLines
 
     val start = new Date()
     uas.foreach(ua => wurfl.deviceForHeaders(Headers("user-agent"->List(ua))))
@@ -53,7 +53,7 @@ class WurflTest extends Loggable {
     @Test
   def deviceShouldBeSmartEnough {
 
-    val wurfl = Wurfl("classpath:///wurfl.xml").build
+    val wurfl = WurflBuilder("classpath:///wurfl.xml").build
 
 
     val ua = "MOT-RAZRV3XXR_J/97.04.30R BER2.2 Mozilla/4.0 (compatible; MSIE 6.0; 13003290) Profile/MIDP-2.0 Configuration/CLDC-1.1  Opera 8.60 [en]"
