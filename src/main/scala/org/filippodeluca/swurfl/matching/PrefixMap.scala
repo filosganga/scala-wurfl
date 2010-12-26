@@ -1,10 +1,6 @@
 package org.filippodeluca.swurfl.matching
 
 import collection._
-import generic.{MutableMapFactory, CanBuildFrom}
-import mutable.{Builder, MapBuilder}
-
-
 /**
  * Created by IntelliJ IDEA.
  * User: filippodeluca

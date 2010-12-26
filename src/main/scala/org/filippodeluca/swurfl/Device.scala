@@ -1,7 +1,5 @@
 package org.filippodeluca.swurfl
 
-import collection.MapLike
-
 /**
  * Created by IntelliJ IDEA.
  * User: filippodeluca

@@ -1,6 +1,7 @@
-package org.filippodeluca.swurfl
+package org.filippodeluca.swurfl.repository
 
-import collection.mutable
+import collection.immutable.Map
+import collection.{Iterator, mutable}
 
 /**
  * Created by IntelliJ IDEA.
@@ -10,7 +11,7 @@ import collection.mutable
  * To change this template use File | Settings | File Templates.
  */
 
-class Repository(root: Resource, patches: Resource*) {
+class InMemoryRepository(root: Resource, patches: Resource*) extends Repository {
 
   val definitions = createDefinitions(root, patches)
 
@@ -20,7 +21,11 @@ class Repository(root: Resource, patches: Resource*) {
     definitions.get(id)
   }
 
-  def size: Int = definitions.size
+  def -(key: String): Map[String, DeviceDefinition] = definitions - key
+
+  def iterator: Iterator[(String, DeviceDefinition)] = definitions.iterator
+
+  def +[B1 >: DeviceDefinition](kv: (String, B1)): Map[String, B1] = definitions + kv
 
   private def createDefinitions(root: Resource, patches: Seq[Resource]): Map[String, DeviceDefinition] = {
 

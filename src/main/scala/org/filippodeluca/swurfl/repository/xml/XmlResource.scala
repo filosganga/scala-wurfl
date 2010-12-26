@@ -6,7 +6,7 @@ import org.filippodeluca.swurfl.util.Loggable
 import scala.collection.mutable.{Set => MutableSet}
 import javax.xml.parsers.SAXParserFactory
 import java.lang.String
-import org.filippodeluca.swurfl.{DeviceDefinition, Device, ResourceData, Resource}
+import org.filippodeluca.swurfl._
 
 /**
  * Created by IntelliJ IDEA.

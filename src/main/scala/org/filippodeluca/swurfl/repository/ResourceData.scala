@@ -1,5 +1,4 @@
-package org.filippodeluca.swurfl
-
+package org.filippodeluca.swurfl.repository
 
 /**
  * Created by IntelliJ IDEA.

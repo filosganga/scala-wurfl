@@ -1,6 +1,7 @@
 package org.filippodeluca.swurfl.util
 
-import org.slf4j.{Logger, LoggerFactory};
+import org.slf4j.LoggerFactory
+;
 
 trait Loggable {
 	

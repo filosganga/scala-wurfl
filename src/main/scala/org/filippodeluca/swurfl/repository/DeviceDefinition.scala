@@ -1,4 +1,4 @@
-package org.filippodeluca.swurfl
+package org.filippodeluca.swurfl.repository
 
 import scala.collection.mutable.Map
 /**
