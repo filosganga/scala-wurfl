@@ -1,12 +1,14 @@
 package org.filippodeluca.swurfl.matching
 
+import collection.mutable
+import actors.Actor._
+
 import scalaj.collection.Imports._
 import org.filippodeluca.swurfl.Headers
 import org.filippodeluca.swurfl.repository.{DeviceDefinition, Repository}
 import org.filippodeluca.swurfl.util.Loggable
 import org.ardverk.collection.{Cursor, Trie, StringKeyAnalyzer, PatriciaTrie}
 import java.util.Map.Entry
-import scala.collection.mutable
 
 /**
  * Created by IntelliJ IDEA.
@@ -43,29 +45,54 @@ trait Matcher extends Loggable {
       // TODO use functional
       val userAgent = headers.userAgent.get
 
-      //TODO search across nearst UAs with tollerance
       class matchingCursor extends Cursor[String, String] {
 
         val candidates = new mutable.ListBuffer[(String, String)]
 
-        def select(entry: Entry[_ <: String, _ <: String]) = {
-          candidates + (entry.getKey -> entry.getValue)
+        var threshold: Int = -1
 
-          // TODO implement a strategy
-          Cursor.Decision.EXIT
+        // It sucks but no better at this time in my head
+        def select(entry: Entry[_ <: String, _ <: String]) = {
+
+          val cua = entry.getKey
+          val cid = entry.getValue
+
+          if(threshold<0) {
+            threshold = StringKeyAnalyzer.INSTANCE.bitIndex(userAgent, cua)
+          }
+
+          val bcl = StringKeyAnalyzer.INSTANCE.bitIndex(userAgent, cua)
+          if(bcl<threshold || candidates.size>= 16) {
+            Cursor.Decision.EXIT
+          }
+          else {
+            candidates + (entry.getKey -> entry.getValue)
+            Cursor.Decision.CONTINUE
+          }
         }
       }
 
 
-      // TODO use actors
+      // Process suffixes by actor
+//      val caller = self
+//      actor {
+        val suffixCursor = new matchingCursor
+        suffixTrie.select(userAgent.reverse, suffixCursor)
+        val suffixCandidates = suffixCursor.candidates.map((entry) => entry._1.reverse->entry._2)
+//        caller ! suffixCursor.candidates.map((entry) => entry._1.reverse->entry._2)
+//      }
+
       val prefixCursor = new matchingCursor
       prefixTrie.select(userAgent, prefixCursor)
-
-      val suffixCursor = new matchingCursor
-      suffixTrie.select(userAgent, suffixCursor)
+      val prefixCandidates = prefixCursor.candidates
 
 
-      val finalists = prefixCursor.candidates.intersect(suffixCursor.candidates)
+//      val finalists = receive {
+//        case suffixCandidates: Seq[(String, String)] => prefixCandidates.intersect(suffixCandidates)
+//      }
+
+      val finalists = prefixCandidates.intersect(suffixCandidates)
+
 
       // TODO apply LD on finalists
       val head = finalists.headOption
@@ -97,11 +124,13 @@ trait Matcher extends Loggable {
 
   protected def init(devices: Traversable[DeviceDefinition]) {
 
-    prefixTrie.putAll(devices.foldLeft(Map[String, String]()) {
+    val matchableDevices = devices.filter(!_.userAgent.startsWith("DO_NOT_MATCH"));
+
+    prefixTrie.putAll(matchableDevices.foldLeft(Map[String, String]()) {
       (map, d) => map + (d.userAgent -> d.id)
     }.asJava)
 
-    suffixTrie.putAll(devices.foldLeft(Map[String, String]()) {
+    suffixTrie.putAll(matchableDevices.foldLeft(Map[String, String]()) {
       (map, d) => map + (d.userAgent.reverse -> d.id)
     }.asJava)
 

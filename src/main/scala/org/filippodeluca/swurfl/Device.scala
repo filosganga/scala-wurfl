@@ -12,4 +12,6 @@ class Device(val id : String, val userAgent : String, val isRoot : Boolean, val 
   // TODO It sucks
   def get(key: String): String = ownedProperties.getOrElse(key, parent.get.get(key))
 
+  override def toString = "Device [id: " + id + "]"
+
 }

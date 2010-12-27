@@ -35,23 +35,23 @@ class WurflTest extends Loggable {
     val wurfl = WurflBuilder("classpath:///root.xml").withPatch("classpath:///add_device_patch.xml").withPatch("classpath:///add_cap_patch.xml").build
   }
 
-  @Test
-  def trieShouldBeSmartEnough {
-
-    val wurfl = WurflBuilder("classpath:///wurfl.xml").build
-
-
-    val uas = Source.fromInputStream(getClass.getResourceAsStream("/handsets-ua-orig.txt"), "UTF-8").getLines
-
-    val start = new Date()
-    val devices = uas.map(ua => wurfl.deviceForHeaders(Headers("user-agent"->List(ua))))
-    val end = new Date()
-
-    val generics = devices.count(_.id == "generic")
-
-    logInfo("Found " + uas.size + " uas (" + generics + " generics/" + uas.size + " UAs) in " + (end.getTime - start.getTime) + "ms")
-
-  }
+//  @Test
+//  def trieShouldBeSmartEnough {
+//
+//    val wurfl = WurflBuilder("classpath:///wurfl.xml").build
+//
+//
+//    val uas = Source.fromInputStream(getClass.getResourceAsStream("/handsets-ua-orig.txt"), "UTF-8").getLines
+//
+//    val start = new Date()
+//    val devices = uas.map(ua => wurfl.deviceForHeaders(Headers("user-agent"->List(ua))))
+//    val end = new Date()
+//
+//    val generics = devices.count(_.id == "generic")
+//
+//    logInfo("Found " + uas.size + " uas (" + generics + " generics/" + uas.size + " UAs) in " + (end.getTime - start.getTime) + "ms")
+//
+//  }
 
   @Test
   def deviceShouldBeSmartEnough {
@@ -59,7 +59,7 @@ class WurflTest extends Loggable {
     val wurfl = WurflBuilder("classpath:///wurfl.xml").build
 
 
-    val ua = "MOT-RAZRV3XXR_J/97.04.30R BER2.2 Mozilla/4.0 (compatible; MSIE 6.0; 13003290) Profile/MIDP-2.0 Configuration/CLDC-1.1  Opera 8.60 [en]"
+    val ua = "MOT-RAZRV3XXR_J/97.04.30R BER2.2 Mozilla/4.0 (compatible; MSIE 6.0; 678) Profile/MIDP-2.0 Configuration/CLDC-1.1  Opera 8.60 [en]"
     //val ua = "Nokia6"
 
     val start = new Date
