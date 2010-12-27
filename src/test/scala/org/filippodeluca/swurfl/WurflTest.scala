@@ -35,22 +35,25 @@ class WurflTest extends Loggable {
     val wurfl = WurflBuilder("classpath:///root.xml").withPatch("classpath:///add_device_patch.xml").withPatch("classpath:///add_cap_patch.xml").build
   }
 
+  @Test
   def trieShouldBeSmartEnough {
 
     val wurfl = WurflBuilder("classpath:///wurfl.xml").build
 
 
-    val uas = Source.fromFile("TBD", "UTF-8").getLines
+    val uas = Source.fromInputStream(getClass.getResourceAsStream("/handsets-ua-orig.txt"), "UTF-8").getLines
 
     val start = new Date()
-    uas.foreach(ua => wurfl.deviceForHeaders(Headers("user-agent"->List(ua))))
+    val devices = uas.map(ua => wurfl.deviceForHeaders(Headers("user-agent"->List(ua))))
     val end = new Date()
 
-    logInfo("Found " + uas.size + " uas in " + (end.getTime - start.getTime) + "ms")
+    val generics = devices.count(_.id == "generic")
+
+    logInfo("Found " + uas.size + " uas (" + generics + " generics/" + uas.size + " UAs) in " + (end.getTime - start.getTime) + "ms")
 
   }
 
-    @Test
+  @Test
   def deviceShouldBeSmartEnough {
 
     val wurfl = WurflBuilder("classpath:///wurfl.xml").build

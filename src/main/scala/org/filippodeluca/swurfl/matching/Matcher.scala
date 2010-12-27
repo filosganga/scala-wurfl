@@ -1,11 +1,12 @@
 package org.filippodeluca.swurfl.matching
 
 import scalaj.collection.Imports._
-import org.ardverk.collection.{Trie, StringKeyAnalyzer, PatriciaTrie}
-
-
 import org.filippodeluca.swurfl.Headers
 import org.filippodeluca.swurfl.repository.{DeviceDefinition, Repository}
+import org.filippodeluca.swurfl.util.Loggable
+import org.ardverk.collection.{Cursor, Trie, StringKeyAnalyzer, PatriciaTrie}
+import java.util.Map.Entry
+import scala.collection.mutable
 
 /**
  * Created by IntelliJ IDEA.
@@ -15,7 +16,7 @@ import org.filippodeluca.swurfl.repository.{DeviceDefinition, Repository}
  * To change this template use File | Settings | File Templates.
  */
 
-trait Matcher {
+trait Matcher extends Loggable {
 
   protected val repository: Repository
 
@@ -24,29 +25,74 @@ trait Matcher {
 
   protected def deviceId(headers: Headers): String = {
 
-    val userAgent = headers.userAgent.get
+    def directMatch(headers: Headers): Option[String] = {
 
-    val id = prefixTrie.get(userAgent)
+      // TODO use functional
+      val userAgent = headers.userAgent.get
 
-    //  TODO search across nearst UAs
-    //    if(id==null) {
-    //
-    //    val candidates = mutable.ListBuffer[(String,String)]()
-    //    val cursor = new Cursor[String, String] {
-    //      def select(entry: Entry[_ <: String, _ <: String])  = {
-    //        candidates + (entry.getKey->entry.getValue)
-    //
-    //        // TODO implement a strategy
-    //        Decision.EXIT
-    //      }
-    //    }
-    //    trie.select(userAgent, cursor)
-    //    candidates.head._2
-    //
-    //
-    //    }
+      val matched = prefixTrie.get(userAgent)
+      if(matched!=null)
+        Some(matched)
+      else
+        None
+    }
 
-    id
+    // Add actors
+    def convergeMatch(headers: Headers): Option[String] = {
+
+      // TODO use functional
+      val userAgent = headers.userAgent.get
+
+      //TODO search across nearst UAs with tollerance
+      class matchingCursor extends Cursor[String, String] {
+
+        val candidates = new mutable.ListBuffer[(String, String)]
+
+        def select(entry: Entry[_ <: String, _ <: String]) = {
+          candidates + (entry.getKey -> entry.getValue)
+
+          // TODO implement a strategy
+          Cursor.Decision.EXIT
+        }
+      }
+
+
+      // TODO use actors
+      val prefixCursor = new matchingCursor
+      prefixTrie.select(userAgent, prefixCursor)
+
+      val suffixCursor = new matchingCursor
+      suffixTrie.select(userAgent, suffixCursor)
+
+
+      val finalists = prefixCursor.candidates.intersect(suffixCursor.candidates)
+
+      // TODO apply LD on finalists
+      val head = finalists.headOption
+      if(head.isDefined)
+        Some(head.get._2)
+      else
+        None
+    }
+
+    // TBD
+    def uaprofMatch(headers: Headers): Option[String] = None
+
+    // TBD
+    def safeMatch(headers: Headers): Option[String] = Some("generic")
+
+    val methods = List[Headers => Option[String]](directMatch, convergeMatch, uaprofMatch, safeMatch)
+
+    val id: Option[String] = methods.foldLeft[Option[String]](None){
+      (matched, f) =>
+        if(matched.isEmpty)
+          f(headers)
+        else
+          matched
+    }
+
+    // For safe reasons
+    id.getOrElse("generic")
   }
 
   protected def init(devices: Traversable[DeviceDefinition]) {
