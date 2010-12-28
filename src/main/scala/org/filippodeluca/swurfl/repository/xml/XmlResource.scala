@@ -2,13 +2,11 @@ package org.filippodeluca.swurfl.repository.xml
 
 import java.net.URI
 import java.io.InputStream
-import scala.collection.mutable.{Set => MutableSet}
 import javax.xml.parsers.SAXParserFactory
 
 import org.filippodeluca.swurfl.{util, repository}
-import util.Loggable
 import repository.{Resource, ResourceData}
-import io.Source
+import util.Loggable
 
 /**
  * Created by IntelliJ IDEA.
@@ -23,39 +21,40 @@ class XmlResource(val uri: URI) extends Resource with Loggable {
 
   override def parse: ResourceData = {
 
-    val input = getInputStream
-
     val handler = new WurflSaxHandler
     val parser = SAXParserFactory.newInstance.newSAXParser
 
-    parser.parse(input, handler, "UTF-8")
-
-    input.close()
+    insideInputStream(parser.parse(_: InputStream, handler))
 
     val id = uri.toString
     val definitions = handler.definitions
 
     logDebug("Parsed " + definitions.size + " definitions")
 
-    //val devices = createDevices(definitions)
-    //devices.ensuring(_.size == definitions.size)
-
     new ResourceData(id, definitions)
   }
 
-  // TODO use scala.io.Source?
-  private def getInputStream: InputStream = {
 
-    uri.getScheme.toLowerCase match {
+  private def insideInputStream(f: InputStream => Unit) {
 
-      case "classpath" => {
-        val path = uri.getPath
-        getClass.getResourceAsStream(path)
+    var input: InputStream = null
+
+    try {
+      input = uri.getScheme.toLowerCase match {
+        case "classpath" => getClass.getResourceAsStream(uri.getPath)
+        case _ => throw new RuntimeException("URI: " + uri + " not found")
       }
 
-      case _ => throw new RuntimeException("URI: " + uri + " not found")
+      f(input)
     }
-
+    finally {
+      try{
+        input.close()
+      }
+      catch {
+        case _ => /* ignore errors */
+      }
+    }
   }
 
 }

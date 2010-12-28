@@ -19,6 +19,9 @@ class WurflSaxHandler extends DefaultHandler {
 
   class DeviceEntry(val id: String, val userAgent: String, val fallBack: String, val isRoot: Boolean)
 
+  // default true
+  private val includeCapability: String => Boolean = (name)=>true
+
   private val _definitions: MutableSet[DeviceDefinition] = MutableSet()
   private var currentEntry: DeviceEntry = null;
   private var currentCapabilities: mutable.Map[String, String] = null
@@ -43,10 +46,13 @@ class WurflSaxHandler extends DefaultHandler {
     case _ => /* Ignore others */
   }
 
-
-
   protected def startCapability(attributes: Attributes) {
-    currentCapabilities += attributes.getValue("name")->attributes.getValue("value")
+
+    val name = attributes.getValue("name");
+    if(includeCapability(name)) {
+      val value = attributes.getValue("value")
+      currentCapabilities += name->value
+    }
   }
 
   protected def startDevice(attributes: Attributes) {
