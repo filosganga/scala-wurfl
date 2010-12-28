@@ -3,8 +3,10 @@ package org.filippodeluca.swurfl
 import org.junit.Test
 import org.junit.Assert._
 import io.Source
-import java.util.Date
 import util.Loggable
+import java.io.{File, FileWriter}
+import java.util.{Properties, Date}
+import scalaj.collection.Imports._
 
 /**
  * Created by IntelliJ IDEA.
@@ -27,34 +29,37 @@ class WurflTest extends Loggable {
   def createWithOnePatch {
 
     val wurfl = WurflBuilder("classpath:///root.xml").withPatch("classpath:///add_device_patch.xml").build
+    val deviceD = wurfl.device("device_d")
+
+    assertNotNull(deviceD)
   }
 
   @Test
   def createWithMultiplePatches {
 
     val wurfl = WurflBuilder("classpath:///root.xml").withPatch("classpath:///add_device_patch.xml").withPatch("classpath:///add_cap_patch.xml").build
+    val deviceD = wurfl.device("device_d")
+
+    val capabilityI = deviceD.get("capability_i")
+
+    assertNotNull(capabilityI)
   }
 
 //  @Test
-//  def trieShouldBeSmartEnough {
+//  def matchDevicesShouldBeSmartEnough {
 //
 //    val wurfl = WurflBuilder("classpath:///wurfl.xml").build
-//
-//
 //    val uas = Source.fromInputStream(getClass.getResourceAsStream("/handsets-ua-orig.txt"), "UTF-8").getLines
 //
 //    val start = new Date()
-//    val devices = uas.map(ua => wurfl.deviceForHeaders(Headers("user-agent"->List(ua))))
+//    uas.foreach((ua: String) => wurfl.deviceForHeaders(Headers("user-agent"->List(ua))))
 //    val end = new Date()
 //
-//    val generics = devices.count(_.id == "generic")
-//
-//    logInfo("Found " + uas.size + " uas (" + generics + " generics/" + uas.size + " UAs) in " + (end.getTime - start.getTime) + "ms")
-//
+//    logInfo("Found multiple devices in " + (end.getTime - start.getTime) + "ms")
 //  }
 
   @Test
-  def deviceShouldBeSmartEnough {
+  def matchDeviceShouldBeSmartEnough {
 
     val wurfl = WurflBuilder("classpath:///wurfl.xml").build
 
@@ -67,6 +72,21 @@ class WurflTest extends Loggable {
     val end = new Date
 
     logInfo("Found " + id + " in " + (end.getTime - start.getTime) + "ms")
+  }
+
+  @Test
+  def matchShouldBeSameAsJava {
+
+    val wurfl = WurflBuilder("classpath:///wurfl.xml").build
+
+    val data = TestUtils.loadRequestDevicesFile
+
+
+    data.foreach({
+      (test) =>
+        val device = wurfl.deviceForHeaders(Headers("user-agent"->List(test.userAgent)))
+        assertEquals(test.userAgent + "Should match " + test.id + " instead of " + device.id, test.id, device.id)
+    })
 
   }
 

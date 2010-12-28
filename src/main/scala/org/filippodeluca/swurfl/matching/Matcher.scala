@@ -22,17 +22,16 @@ trait Matcher extends Loggable {
 
   protected val repository: Repository
 
-  private val prefixTrie = new PatriciaTrie[String, String](StringKeyAnalyzer.INSTANCE)
-  private val suffixTrie = new PatriciaTrie[String, String](StringKeyAnalyzer.INSTANCE)
+  protected val userAgentTrie = new PatriciaTrie[String, String](StringKeyAnalyzer.INSTANCE)
 
   protected def deviceId(headers: Headers): String = {
 
-    def directMatch(headers: Headers): Option[String] = {
+    def perfectMatch(headers: Headers): Option[String] = {
 
       // TODO use functional
       val userAgent = headers.userAgent.get
 
-      val matched = prefixTrie.get(userAgent)
+      val matched = userAgentTrie.get(userAgent)
       if(matched!=null)
         Some(matched)
       else
@@ -40,75 +39,28 @@ trait Matcher extends Loggable {
     }
 
     // Add actors
-    def convergeMatch(headers: Headers): Option[String] = {
+    def nearestMatch(headers: Headers): Option[String] = {
 
       // TODO use functional
       val userAgent = headers.userAgent.get
 
-      class matchingCursor extends Cursor[String, String] {
+      val matched = userAgentTrie.select(userAgent)
 
-        val candidates = new mutable.ListBuffer[(String, String)]
-
-        var threshold: Int = -1
-
-        // It sucks but no better at this time in my head
-        def select(entry: Entry[_ <: String, _ <: String]) = {
-
-          val cua = entry.getKey
-          val cid = entry.getValue
-
-          if(threshold<0) {
-            threshold = StringKeyAnalyzer.INSTANCE.bitIndex(userAgent, cua)
-          }
-
-          val bcl = StringKeyAnalyzer.INSTANCE.bitIndex(userAgent, cua)
-          if(bcl<threshold || candidates.size>= 16) {
-            Cursor.Decision.EXIT
-          }
-          else {
-            candidates + (entry.getKey -> entry.getValue)
-            Cursor.Decision.CONTINUE
-          }
-        }
+      // TODO Apply a threasold
+      if(matched!=null) {
+        val mua = matched.getKey
+        val mid = matched.getValue
+        Some(mid)
       }
-
-
-      // Process suffixes by actor
-//      val caller = self
-//      actor {
-        val suffixCursor = new matchingCursor
-        suffixTrie.select(userAgent.reverse, suffixCursor)
-        val suffixCandidates = suffixCursor.candidates.map((entry) => entry._1.reverse->entry._2)
-//        caller ! suffixCursor.candidates.map((entry) => entry._1.reverse->entry._2)
-//      }
-
-      val prefixCursor = new matchingCursor
-      prefixTrie.select(userAgent, prefixCursor)
-      val prefixCandidates = prefixCursor.candidates
-
-
-//      val finalists = receive {
-//        case suffixCandidates: Seq[(String, String)] => prefixCandidates.intersect(suffixCandidates)
-//      }
-
-      val finalists = prefixCandidates.intersect(suffixCandidates)
-
-
-      // TODO apply LD on finalists
-      val head = finalists.headOption
-      if(head.isDefined)
-        Some(head.get._2)
-      else
+      else {
         None
+      }
     }
 
-    // TBD
+    // TODO TBD
     def uaprofMatch(headers: Headers): Option[String] = None
 
-    // TBD
-    def safeMatch(headers: Headers): Option[String] = Some("generic")
-
-    val methods = List[Headers => Option[String]](directMatch, convergeMatch, uaprofMatch, safeMatch)
+    val methods = List[Headers => Option[String]](perfectMatch, nearestMatch, uaprofMatch)
 
     val id: Option[String] = methods.foldLeft[Option[String]](None){
       (matched, f) =>
@@ -118,7 +70,7 @@ trait Matcher extends Loggable {
           matched
     }
 
-    // For safe reasons
+    // Return generic al least
     id.getOrElse("generic")
   }
 
@@ -126,12 +78,8 @@ trait Matcher extends Loggable {
 
     val matchableDevices = devices.filter(!_.userAgent.startsWith("DO_NOT_MATCH"));
 
-    prefixTrie.putAll(matchableDevices.foldLeft(Map[String, String]()) {
+    userAgentTrie.putAll(matchableDevices.foldLeft(Map[String, String]()) {
       (map, d) => map + (d.userAgent -> d.id)
-    }.asJava)
-
-    suffixTrie.putAll(matchableDevices.foldLeft(Map[String, String]()) {
-      (map, d) => map + (d.userAgent.reverse -> d.id)
     }.asJava)
 
   }
