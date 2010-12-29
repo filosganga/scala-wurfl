@@ -41,16 +41,24 @@ trait Matcher extends Loggable {
       // Add actors
       def nearestMatch(userAgent: String): Option[String] = {
 
+        def selectCandidates(userAgent: String, trie: Trie[String, String]): Map[String, String] = {
+          val cursor = new WurflCursor
+          trie.select(userAgent, cursor)
+          cursor.candidates.toMap
+        }
+
         // TODO use functional
         val userAgent = headers.userAgent.get
 
         // TODO Dummy tolerance
         var tolerance = (userAgent.length * 0.66).toInt
 
-        val cursor = new WurflCursor
-        userAgentPrefixTrie.select(userAgent, cursor)
 
-        val candidates = cursor.candidates;
+        val prefixes = selectCandidates(userAgent, userAgentPrefixTrie)
+        val suffixes = selectCandidates(userAgent.reverse, userAgentSuffixTrie)
+        val commons = prefixes.filterKeys(suffixes.contains(_))
+
+        val candidates = if(commons.isEmpty) prefixes else commons
         val best = candidates.min(Ordering.by((e: (String, String))=>Matcher.ld(userAgent, e._1)))
 
         Some(best._2)

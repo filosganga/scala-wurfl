@@ -74,7 +74,26 @@ class MatcherTest {
   }
 
   @Test
-  def testDifferentPrefixUserAgents() {
+  def testDifferentInexistentPrefixUserAgents() {
+
+    val matcher = new Matcher() {}
+
+    val expected = "a"
+    val userAgent = "Mozilla/5 (13.24) Nokia8800 Bla Bla Bla"
+
+    val definition = Seq(
+      new DeviceDefinition("a", "Mozilla/5 (12.34) Nokia8800 Bla Bla Bla", Seq.empty[String], true, Map[String, String]()),
+      new DeviceDefinition("b", "Mozilla/5 (14.56) Nokia6600 Bla Bla Bla", Seq.empty[String], true, Map[String, String]())
+    )
+    matcher.init(definition)
+
+    val response = matcher.deviceId(Headers("user-agent"->List(userAgent)))
+
+    assertEquals(expected, response)
+  }
+
+  @Test
+  def testDifferentExistentPrefixUserAgents() {
 
     val matcher = new Matcher() {}
 
