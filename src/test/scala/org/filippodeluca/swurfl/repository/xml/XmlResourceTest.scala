@@ -18,28 +18,24 @@ class XmlResourceTest {
   def parseShouldReturnNotEmptyData = {
 
     val resource = new XmlResource("classpath:///wurfl.xml");
-    val data = resource.parse
 
-    assertNotNull(data)
-    assertFalse(data.devices.isEmpty)
+    assertFalse(resource.devices.isEmpty)
   }
 
   @Test
   def parseShouldReturnDataWithGeneric = {
 
     val resource = new XmlResource("classpath:///wurfl.xml");
-    val data = resource.parse
 
-    assertTrue(data.devices.find(_.id == "generic").isDefined)
+    assertTrue(resource.devices.find(_.id == "generic").isDefined)
   }
 
   @Test
   def parseShouldReturnDataWithoutOrphanDevice = {
 
     val resource = new XmlResource("classpath:///wurfl.xml");
-    val data = resource.parse
 
-    assertTrue(data.devices.forall(device => device.fallBack != None || device.id == "generic"))
+    assertTrue(resource.devices.forall(device => device.hierarchy != None || device.id == "generic"))
   }
 
 

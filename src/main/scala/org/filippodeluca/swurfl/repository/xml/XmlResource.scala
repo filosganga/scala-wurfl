@@ -5,7 +5,7 @@ import java.io.InputStream
 import javax.xml.parsers.SAXParserFactory
 
 import org.filippodeluca.swurfl.{util, repository}
-import repository.{Resource, ResourceData}
+import repository.{DeviceDefinition, Resource}
 import util.Loggable
 
 /**
@@ -19,19 +19,16 @@ class XmlResource(val uri: URI) extends Resource with Loggable {
 
   def this(path: String) = this (URI.create(path))
 
-  override def parse: ResourceData = {
+  override def id: String = uri.toString
+
+  override def devices: Traversable[DeviceDefinition] = {
 
     val handler = new WurflSaxHandler
     val parser = SAXParserFactory.newInstance.newSAXParser
 
     insideInputStream(parser.parse(_: InputStream, handler))
 
-    val id = uri.toString
-    val definitions = handler.definitions
-
-    logDebug("Parsed " + definitions.size + " definitions")
-
-    new ResourceData(id, definitions)
+    handler.definitions
   }
 
 

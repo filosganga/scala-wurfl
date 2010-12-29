@@ -7,15 +7,16 @@ import collection.mutable
  * User: filippodeluca
  * Date: 20/12/10
  * Time: 09.22
- * To change this template use File | Settings | File Templates.
+ *
+ * hierarchy is from fallBack to generic
  */
 class DeviceDefinition(var id : String,
                        var userAgent : String,
-                       val fallBack : String = "root",
+                       val hierarchy : Iterable[String] = Seq.empty[String],
                        var isRoot : Boolean = false,
                        val capabilities : Map[String, String]) {
 
   override def toString =
-    "DeviceDefinition[id: " + id + ", userAgent: " + userAgent + ", fallBack: " + fallBack + ", isRoot: " + isRoot + ", capabilities: " + capabilities + "]"
+    "DeviceDefinition[id: " + id + ", userAgent: " + userAgent + ", hierarchy: " + hierarchy + ", isRoot: " + isRoot + ", capabilities: " + capabilities + "]"
 
 }

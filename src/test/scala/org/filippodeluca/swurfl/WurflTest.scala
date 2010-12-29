@@ -40,7 +40,7 @@ class WurflTest extends Loggable {
     val wurfl = WurflBuilder("classpath:///root.xml").withPatch("classpath:///add_device_patch.xml").withPatch("classpath:///add_cap_patch.xml").build
     val deviceD = wurfl.device("device_d")
 
-    val capabilityI = deviceD.get("capability_i")
+    val capabilityI = deviceD.properties.get("capability_i")
 
     assertNotNull(capabilityI)
   }

@@ -29,8 +29,18 @@ class InMemoryRepository(root: Resource, patches: Resource*) extends Repository 
 
   private def createDefinitions(root: Resource, patches: Seq[Resource]): Map[String, DeviceDefinition] = {
 
-    val rootData = root.parse
-    rootData.devices.foldLeft(mutable.Map[String, DeviceDefinition]()){(map, d) => map += (d.id->d)}.toMap
+
+
+    val devices = root.devices;
+
+    val badDevices = devices.filter((d)=>d.id != "generic" && d.hierarchy.last != "generic")
+
+    if(!badDevices.isEmpty) {
+      badDevices.foreach((x)=>println("Bad hierarchy:" + (x +: x.hierarchy.toSeq)))
+      throw new RuntimeException("Bad Hierarchies detected")
+    }
+
+    devices.foldLeft(mutable.Map[String, DeviceDefinition]()){(map, d) => map += (d.id->d)}.toMap
 
   }
 

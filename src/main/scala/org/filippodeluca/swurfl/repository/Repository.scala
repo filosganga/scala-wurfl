@@ -14,4 +14,8 @@ trait Repository extends Map[String, DeviceDefinition] {
 
   def generic: DeviceDefinition
 
+  def hierarchy(id: String): Iterable[DeviceDefinition] = hierarchy(get(id).get)
+
+  def hierarchy(definition: DeviceDefinition): Iterable[DeviceDefinition] = definition +: definition.hierarchy.map(get(_).get).toSeq
+
 }

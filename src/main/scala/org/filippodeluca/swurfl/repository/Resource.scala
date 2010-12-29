@@ -10,6 +10,8 @@ package org.filippodeluca.swurfl.repository
 
 trait Resource {
 
-  def parse : ResourceData
+  def id: String
+
+  def devices : Traversable[DeviceDefinition]
 
 }

@@ -26,14 +26,11 @@ trait Wurfl extends Matcher with Loggable {
 
   // TODO cache it
   def device(id: String): Device = {
-    if(id == repository.generic.id) {
-      new Device(id, repository.generic.userAgent, repository.generic.isRoot, None, repository.generic.capabilities.toMap)
-    }
-    else {
-      val definition = repository(id);
-      new Device(definition.id, definition.userAgent, definition.isRoot, Some(device(definition.fallBack)), definition.capabilities.toMap)
-    }
 
+    val definition = repository(id)
+    val capabilities: Map[String, String] = repository.hierarchy(definition).foldRight(Map.empty[String, String])((d, m) => m ++ d.capabilities)
+
+    new Device(definition.id, definition.userAgent, definition.isRoot, capabilities)
   }
 
 }

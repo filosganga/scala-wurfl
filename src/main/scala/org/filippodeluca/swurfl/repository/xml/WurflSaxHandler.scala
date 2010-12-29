@@ -1,10 +1,9 @@
 package org.filippodeluca.swurfl.repository.xml
 
 import collection.mutable
-import mutable.{Set => MutableSet}
 import org.xml.sax._
 import helpers.DefaultHandler
-import java.lang.String
+
 
 import org.filippodeluca.swurfl.repository.DeviceDefinition
 
@@ -22,22 +21,26 @@ class WurflSaxHandler extends DefaultHandler {
   // default true
   private val includeCapability: String => Boolean = (name)=>true
 
-  private val _definitions: MutableSet[DeviceDefinition] = MutableSet()
-  private var currentEntry: DeviceEntry = null;
-  private var currentCapabilities: mutable.Map[String, String] = null
+  private val hierarchies: mutable.Map[String, Seq[String]] = mutable.Map()
+  private val entries: mutable.Map[String, DeviceEntry] = mutable.Map()
+  private val capabilities: mutable.Map[String, mutable.Map[String, String]] = mutable.Map()
+  private var currentCapabilities: Option[mutable.Map[String, String]] = None;
 
-  def definitions : Set[DeviceDefinition] = {
-    Set(_definitions.toList:_*)
+  def definitions : Iterable[DeviceDefinition] = {
+    entries.values.map({
+      (e) =>
+
+      val cps = capabilities(e.id).toMap
+      val hierarchy = hierarchies(e.id)
+      new DeviceDefinition(e.id, e.userAgent, hierarchy, e.isRoot, cps)
+    })
   }
 
-  override def endDocument = {}
+  override def endDocument {}
 
-  override def startDocument = {}
+  override def startDocument {}
 
-  override def endElement(uri : String, localName : String, qname : String) = qname match {
-    case "device" => endDevice()
-    case _ => /* Ignore other */
-  }
+  override def endElement(uri : String, localName : String, qname : String) {}
 
   override def startElement(uri : String, localName : String, qname : String, attributes : Attributes) = qname match {
 
@@ -51,33 +54,28 @@ class WurflSaxHandler extends DefaultHandler {
     val name = attributes.getValue("name");
     if(includeCapability(name)) {
       val value = attributes.getValue("value")
-      currentCapabilities += name->value
+      currentCapabilities.foreach(_ += (name->value))
     }
   }
 
   protected def startDevice(attributes: Attributes) {
 
-    currentEntry = deviceEntry(attributes)
+    val entry = deviceEntry(attributes)
+    entries += (entry.id->entry)
 
-    currentCapabilities = mutable.Map()
-  }
+    val hierarchy: Seq[String] = if(entry.id != "generic")
+      entry.fallBack +: hierarchies.getOrElse(entry.fallBack, Seq[String]())
+    else
+      Seq.empty[String]
 
-  protected def endDevice() {
+    // Add this hierarchy
+    hierarchies += (entry.id->hierarchy)
 
+    // Updates existent hierarchies
+    hierarchies ++= hierarchies.filter(_._2.lastOption.exists(_ == entry.id)).mapValues(_ ++ hierarchy)
 
-    val definition = new DeviceDefinition(
-      currentEntry.id,
-      currentEntry.userAgent,
-      currentEntry.fallBack,
-      currentEntry.isRoot,
-      currentCapabilities.toMap
-    )
-
-    _definitions += definition
-
-    currentEntry = null
-    currentCapabilities = null
-
+    capabilities += (entry.id->mutable.Map())
+    currentCapabilities = Some(capabilities(entry.id))
   }
 
   protected def deviceEntry(attributes: Attributes): DeviceEntry = {
