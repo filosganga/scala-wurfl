@@ -3,9 +3,8 @@ package org.filippodeluca.swurfl.repository.xml
 import collection.mutable
 import org.xml.sax._
 import helpers.DefaultHandler
+import org.filippodeluca.swurfl.repository.{NullUserAgentException, DeviceDefinition}
 
-
-import org.filippodeluca.swurfl.repository.DeviceDefinition
 
 /**
  * Created by IntelliJ IDEA.
@@ -86,6 +85,12 @@ class WurflSaxHandler extends DefaultHandler {
     val isRoot = attributes.getValue("actual_device_root") eq "true"
 
     new DeviceEntry(id, userAgent, fallBack, isRoot)
+  }
+
+  private def assertNotNull(value: String, messagge: String) {
+    if(value == null || value.trim.isEmpty) {
+      throw new RuntimeException(messagge)
+    }
   }
 
 }

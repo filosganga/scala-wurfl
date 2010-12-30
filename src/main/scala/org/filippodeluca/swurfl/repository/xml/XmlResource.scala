@@ -2,11 +2,12 @@ package org.filippodeluca.swurfl.repository.xml
 
 import java.net.URI
 import java.io.InputStream
-import javax.xml.parsers.SAXParserFactory
 
 import org.filippodeluca.swurfl.{repository, util}
 import repository.{DeviceDefinition, Resource}
 import util.Loggable
+import org.xml.sax.helpers.XMLReaderFactory
+import org.xml.sax.InputSource
 
 /**
  * Created by IntelliJ IDEA.
@@ -24,34 +25,40 @@ class XmlResource(val uri: URI) extends Resource with Loggable {
   override def devices: Traversable[DeviceDefinition] = {
 
     val handler = new WurflSaxHandler
-    val parser = SAXParserFactory.newInstance.newSAXParser
+    val xmlReader = XMLReaderFactory.createXMLReader()
+    xmlReader.setContentHandler(handler)
 
-    insideInputStream(parser.parse(_: InputStream, handler))
+    val inputStream = openInputStream(uri)
+
+    using(inputStream) {
+      val inputSource = new InputSource(inputStream)
+      inputSource.setEncoding("UTF-8")
+
+      xmlReader.parse(inputSource)
+    }
 
     handler.definitions
   }
 
+  private def openInputStream(uri: URI): InputStream = uri.getScheme match {
+    case "classpath" => getClass.getResourceAsStream(uri.getPath)
+    case _ => throw new RuntimeException("URI: " + uri + " not found")
+  }
 
-  private def insideInputStream(f: InputStream => Unit) {
+  private def using(closable: {def close(): Unit})(body: => Unit) {
 
-    var input: InputStream = null
-
-    try {
-      input = uri.getScheme.toLowerCase match {
-        case "classpath" => getClass.getResourceAsStream(uri.getPath)
-        case _ => throw new RuntimeException("URI: " + uri + " not found")
-      }
-
-      f(input)
+    try{
+      body
     }
     finally {
-      try{
-        input.close()
+      try {
+        closable.close()
       }
       catch {
-        case _ => /* ignore errors */
+        case _ => // Ignore
       }
     }
   }
+
 
 }

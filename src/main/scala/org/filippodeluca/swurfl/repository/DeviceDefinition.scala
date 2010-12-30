@@ -16,6 +16,8 @@ class DeviceDefinition(var id : String,
 
   def isGeneric = id == Repository.GENERIC
 
+  def isNotGeneric = isGeneric == false
+
   override def toString =
     "DeviceDefinition[id: " + id + ", userAgent: " + userAgent + ", hierarchy: " + hierarchy + ", isRoot: " + isRoot + ", capabilities: " + capabilities + "]"
 

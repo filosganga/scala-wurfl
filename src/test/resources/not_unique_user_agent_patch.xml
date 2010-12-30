@@ -8,15 +8,13 @@
 
 -->
 
-<!-- $Id: add_cap_patch.xml 429 2010-05-06 11:38:31Z filippo.deluca $ -->
+<!-- $Id: not_unique_user_agent_patch.xml 429 2010-05-06 11:38:31Z filippo.deluca $ -->
 <wurfl_patch>
 	<devices>
 		
-		<device fall_back="root" id="generic" user_agent="">
-			<group id="group_c">
-				<capability name="capability_i" value="i" />
-			</group>
-		</device>
+		<!-- must trow exception if i isn't defined before -->
+
+		<device id="device_e" fall_back="generic" user_agent="DEVICE A" />
 
 	</devices>
 </wurfl_patch>

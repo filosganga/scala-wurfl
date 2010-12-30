@@ -37,7 +37,7 @@ class WurflTest extends Loggable {
   @Test
   def createWithMultiplePatches {
 
-    val wurfl = WurflBuilder("classpath:///root.xml").withPatch("classpath:///add_device_patch.xml").withPatch("classpath:///add_cap_patch.xml").build
+    val wurfl = WurflBuilder("classpath:///root.xml").withPatch("classpath:///add_device_patch.xml").withPatch("classpath:///add_capability_patch.xml").build
     val deviceD = wurfl.device("device_d")
 
     val capabilityI = deviceD.properties.get("capability_i")

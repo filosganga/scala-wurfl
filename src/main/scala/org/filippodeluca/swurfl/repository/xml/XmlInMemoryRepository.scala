@@ -12,6 +12,10 @@ import org.filippodeluca.swurfl.repository.{Resource, InMemoryRepository}
 
 class XmlInMemoryRepository(root: Resource, patches: Resource*) extends InMemoryRepository(root.devices, patches.map(_.devices):_*) {
 
+  def this(rootPath: String, patchPaths: String*) = {
+    this(new XmlResource(rootPath), patchPaths.map(new XmlResource(_)):_*)
+  }
+
   def patch(p: Resource) {
     patch(p.devices)
   }

@@ -8,9 +8,15 @@
 
 -->
 
-<!-- $Id: circular_hierarchy_patch.xml 429 2010-05-06 11:38:31Z filippo.deluca $ -->
+<!-- $Id: add_capability_patch.xml 429 2010-05-06 11:38:31Z filippo.deluca $ -->
 <wurfl_patch>
 	<devices>
-		<device id="device_a" fall_back="device_a_b_a" user_agent="DEVICE A" />
+		
+		<device fall_back="root" id="generic" user_agent="">
+			<group id="group_c">
+				<capability name="capability_i" value="i" />
+			</group>
+		</device>
+
 	</devices>
 </wurfl_patch>

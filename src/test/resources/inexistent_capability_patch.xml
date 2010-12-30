@@ -8,15 +8,15 @@
 
 -->
 
-<!-- $Id: add_device_caps_patch.xml 429 2010-05-06 11:38:31Z filippo.deluca $ -->
+<!-- $Id: inexistent_capability_patch.xml 429 2010-05-06 11:38:31Z filippo.deluca $ -->
 <wurfl_patch>
 	<devices>
 		
 		<!-- must trow exception if i isn't defined before -->
 
-		<device fall_back="device_d" id="device_d_a" user_agent="DEVICE D A">
+		<device id="device_b_a" fall_back="device_b" user_agent="DEVICE D A">
 			<group id="group_c">
-				<capability name="capability_i" value="device_d_a_i" />
+				<capability name="capability_i" value="device_b_a_i" />
 			</group>
 		</device>
 

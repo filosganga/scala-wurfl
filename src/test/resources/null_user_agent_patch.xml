@@ -8,13 +8,13 @@
 
 -->
 
-<!-- $Id: useragent_not_unique_patch.xml 429 2010-05-06 11:38:31Z filippo.deluca $ -->
+<!-- $Id: null_fallback_patch.xml 429 2010-05-06 11:38:31Z filippo.deluca $ -->
 <wurfl_patch>
 	<devices>
 		
 		<!-- must trow exception if i isn't defined before -->
 
-		<device fall_back="generic" id="device_e" user_agent="DEVICE A" />
+		<device id="device_b_a" fall_back="device_b" />
 
 	</devices>
 </wurfl_patch>
