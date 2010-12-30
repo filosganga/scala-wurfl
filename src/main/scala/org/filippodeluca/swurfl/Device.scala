@@ -9,6 +9,32 @@ package org.filippodeluca.swurfl
  */
 class Device(val id : String, val userAgent : String, val isRoot : Boolean, val properties : Map[String, String]) {
 
+
+  override def hashCode: Int = {
+
+    // TODO Boh...
+    getClass.hashCode + id.hashCode + userAgent.hashCode + isRoot.hashCode + properties.hashCode
+  }
+
+  override def equals(o: Any): Boolean = {
+
+    var eq = true
+
+    if(o.isInstanceOf[Device]) {
+      val oth = o.asInstanceOf[Device]
+
+      eq = eq && id == oth.id
+      eq = eq && userAgent == oth.userAgent
+      eq = eq && isRoot == oth.isRoot
+      eq = eq && properties == oth.properties
+    }
+    else {
+      eq = false
+    }
+
+    eq
+  }
+
   override def toString = "Device [id: " + id + "]"
 
 }

@@ -1,12 +1,12 @@
 package org.filippodeluca.swurfl.matching
 
+import org.filippodeluca.swurfl.{Headers, repository, util}
+import repository.DeviceDefinition
+import util.Loggable
+
 import scalaj.collection.Imports._
-import org.filippodeluca.swurfl.Headers
-import org.filippodeluca.swurfl.repository.{DeviceDefinition, Repository}
-import org.filippodeluca.swurfl.util.Loggable
 import org.ardverk.collection.{Cursor, Trie, StringKeyAnalyzer, PatriciaTrie}
 import java.util.Map.Entry
-import org.ardverk.collection.Cursor.Decision
 import scala.collection.mutable
 
 /**
@@ -101,17 +101,17 @@ trait Matcher extends Loggable {
     val candidates = mutable.Map[String, String]()
     var minLenght = -1
 
-    override def select(entry: Entry[_ <: String, _ <: String]): Decision = {
+    override def select(entry: Entry[_ <: String, _ <: String]): Cursor.Decision = {
 
       if(minLenght<0)
         minLenght=StringKeyAnalyzer.INSTANCE.lengthInBits(entry.getKey)
 
       if(StringKeyAnalyzer.INSTANCE.lengthInBits(entry.getKey)<minLenght) {
-        Decision.EXIT
+        Cursor.Decision.EXIT
       }
       else {
         candidates += (entry.getKey->entry.getValue)
-        Decision.CONTINUE
+        Cursor.Decision.CONTINUE
       }
     }
   }

@@ -37,6 +37,21 @@ class Headers(private val delegate : Map[String, Seq[String]]) {
 
   def withUserAgent(ua: String): Headers = withHeader("user-agent", ua)
 
+  override def equals(o: Any): Boolean = {
+
+    if(o.isInstanceOf[Headers]) {
+      delegate == o.asInstanceOf[Headers].delegate
+    }
+    else {
+      false
+    }
+
+  }
+
+  override def hashCode: Int = {
+    getClass.hashCode + delegate.hashCode
+  }
+
 }
 
 object Headers {

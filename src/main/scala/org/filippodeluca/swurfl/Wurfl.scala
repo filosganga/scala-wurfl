@@ -1,8 +1,7 @@
 package org.filippodeluca.swurfl
 
 import matching.Matcher
-import repository.xml.XmlResource
-import repository.{InMemoryRepository, Repository, Resource}
+import repository.Repository
 import util.Loggable
 
 

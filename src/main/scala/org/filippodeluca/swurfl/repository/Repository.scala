@@ -19,3 +19,8 @@ trait Repository extends Map[String, DeviceDefinition] {
   def hierarchy(definition: DeviceDefinition): Iterable[DeviceDefinition] = definition +: definition.hierarchy.map(get(_).get).toSeq
 
 }
+
+object Repository {
+
+  val GENERIC = "generic"
+}

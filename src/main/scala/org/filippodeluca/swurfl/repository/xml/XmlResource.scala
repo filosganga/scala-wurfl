@@ -4,7 +4,7 @@ import java.net.URI
 import java.io.InputStream
 import javax.xml.parsers.SAXParserFactory
 
-import org.filippodeluca.swurfl.{util, repository}
+import org.filippodeluca.swurfl.{repository, util}
 import repository.{DeviceDefinition, Resource}
 import util.Loggable
 

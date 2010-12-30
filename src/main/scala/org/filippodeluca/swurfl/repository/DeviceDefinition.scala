@@ -1,7 +1,5 @@
 package org.filippodeluca.swurfl.repository
 
-import collection.mutable
-
 /**
  * Created by IntelliJ IDEA.
  * User: filippodeluca
@@ -15,6 +13,8 @@ class DeviceDefinition(var id : String,
                        val hierarchy : Iterable[String] = Seq.empty[String],
                        var isRoot : Boolean = false,
                        val capabilities : Map[String, String]) {
+
+  def isGeneric = id == Repository.GENERIC
 
   override def toString =
     "DeviceDefinition[id: " + id + ", userAgent: " + userAgent + ", hierarchy: " + hierarchy + ", isRoot: " + isRoot + ", capabilities: " + capabilities + "]"

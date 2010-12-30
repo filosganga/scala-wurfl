@@ -1,7 +1,7 @@
 package org.filippodeluca.swurfl
 
-import repository.xml.XmlResource
-import repository.{Repository, Resource, InMemoryRepository}
+import repository.xml.{XmlInMemoryRepository, XmlResource}
+import repository.{Repository, Resource}
 
 /**
  * Created by IntelliJ IDEA.
@@ -20,7 +20,7 @@ class WurflBuilder(private val root: Resource, private val patches: Seq[Resource
 
   def withPatch(pt: String): WurflBuilder = withPatch(new XmlResource(pt))
 
-  def build : Wurfl = new DefaultWurfl(new InMemoryRepository(root, patches: _*))
+  def build : Wurfl = new DefaultWurfl(new XmlInMemoryRepository(root, patches: _*))
 
   private class DefaultWurfl(protected val repository: Repository) extends Wurfl;
 

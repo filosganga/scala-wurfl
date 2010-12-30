@@ -33,7 +33,6 @@
 		<!-- "user_agent" is a subset of the user_agent string -->
 		<!-- "fall_back" uses (unique) ID attribute to track down more generic device to delegate to -->
 		<!-- "id" is a unique ID for each device. ID is a mnemonic string decided by Author -->
-
 		<device fall_back="root" id="generic" user_agent="" specific="true">
 			<group id="group_a">
 				<capability name="capability_a" value="a" />
