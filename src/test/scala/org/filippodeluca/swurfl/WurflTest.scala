@@ -58,21 +58,21 @@ class WurflTest extends Loggable {
 //    logInfo("Found multiple devices in " + (end.getTime - start.getTime) + "ms")
 //  }
 
-//  @Test
-//  def matchDeviceShouldBeSmartEnough {
-//
-//    val wurfl = WurflBuilder("classpath:///wurfl.xml").build
-//
-//
-//    val ua = "MOT-RAZRV3XXR_J/97.04.30R BER2.2 Mozilla/4.0 (compatible; MSIE 6.0; 678) Profile/MIDP-2.0 Configuration/CLDC-1.1  Opera 8.60 [en]"
-//    //val ua = "Nokia6"
-//
-//    val start = new Date
-//    val id = wurfl.deviceForHeaders(Headers("user-agent"->List(ua)))
-//    val end = new Date
-//
-//    logInfo("Found " + id + " in " + (end.getTime - start.getTime) + "ms")
-//  }
+  @Test
+  def matchDeviceShouldBeSmartEnough {
+
+    val wurfl = WurflBuilder("classpath:///wurfl.xml").build
+
+
+    val ua = "MOT-RAZRV3XXR_J/97.04.30R BER2.2 Mozilla/4.0 (compatible; MSIE 6.0; 678) Profile/MIDP-2.0 Configuration/CLDC-1.1  Opera 8.60 [en]"
+    //val ua = "Nokia6"
+
+    val start = new Date
+    val id = wurfl.deviceForHeaders(Headers("user-agent"->List(ua)))
+    val end = new Date
+
+    logInfo("Found " + id + " in " + (end.getTime - start.getTime) + "ms")
+  }
 
 //  @Test
 //  def matchShouldBeSameAsJava {

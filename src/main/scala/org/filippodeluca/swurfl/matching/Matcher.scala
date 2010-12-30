@@ -26,16 +26,9 @@ trait Matcher extends Loggable {
 
     def userAgentMatch(headers: Headers): Option[String] = {
 
-      def perfectMatch(userAgent: String): Option[String] = {
-
-        // TODO use functional
-        val userAgent = headers.userAgent.get
-
-        val matched = userAgentPrefixTrie.get(userAgent)
-        if(matched!=null)
-          Some(matched)
-        else
-          None
+      def perfectMatch(userAgent: String): Option[String] = userAgentPrefixTrie.get(userAgent) match {
+        case null => None
+        case matched => Some(matched)
       }
 
       // Add actors
