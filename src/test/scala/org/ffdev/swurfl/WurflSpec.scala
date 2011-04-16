@@ -22,8 +22,14 @@ class WurflSpec extends Specification {
 
     }
     "match device" in {
-      val wurfl = new Wurfl("classpath:///root.xml")
-      wurfl.device(Headers("user-agent"->List("DEVICE A"))) must not(beNull)
+      "perfect match" in {
+        val wurfl = new Wurfl("classpath:///root.xml")
+        wurfl.device(Headers("user-agent"->List("DEVICE A"))) must not(beNull)
+      }
+      "nearest match" in {
+        val wurfl = new Wurfl("classpath:///root.xml")
+        wurfl.device(Headers("user-agent"->List("DEVICE"))) must not(beNull)
+      }
     }
   }
 }
