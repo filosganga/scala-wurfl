@@ -8,6 +8,10 @@ syntax: glob
 *.old
 .DS_Store
 
+# sbt
+lib_managed/
+project/boot/
+
 # eclipse conf file
 .settings
 .classpath
