@@ -11,6 +11,7 @@ syntax: glob
 # sbt
 lib_managed/
 project/boot/
+project/build/target
 
 # eclipse conf file
 .settings
