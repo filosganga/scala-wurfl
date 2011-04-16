@@ -1,7 +1,6 @@
-package org.filippodeluca.swurfl
+package org.ffdev.swurfl
 
 import io.Source
-import org.ffdev.swurfl.repository.{DummyDeviceEnty, DeviceEntry}
 
 /**
  * Created by IntelliJ IDEA.
@@ -14,15 +13,15 @@ import org.ffdev.swurfl.repository.{DummyDeviceEnty, DeviceEntry}
 
 object TestUtils {
 
-  def loadRequestDevicesFile: Iterable[DeviceEntry] = {
+  def loadRequestDevicesFile: Iterable[UserAgentEntry] = {
 
     val lines = Source.fromInputStream(getClass.getResourceAsStream("/unit-test.yml")).getLines
 
-    lines.foldLeft(List[DeviceEntry]()) {
+    lines.foldLeft(List[UserAgentEntry]()) {
       (list, line) =>
         if (line != null && !line.isEmpty && !line.trim.startsWith("#")) {
           val tokens = line.split("=")
-          list :+ new DummyDeviceEnty(tokens(1), Some(tokens(0)))
+          list :+ new UserAgentEntry(tokens(1), tokens(0))
         }
         else {
           list
