@@ -24,8 +24,8 @@ project/boot/
 *.iml
 
 # building
-target
-build
+/target
+/build
 null
 tmp*
 temp*
