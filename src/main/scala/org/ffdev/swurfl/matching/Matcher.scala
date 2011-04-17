@@ -9,7 +9,9 @@ import org.ardverk.collection._
 import org.ffdev.swurfl.repository.Repository
 import org.ffdev.swurfl.{Device, Headers}
 
-class Matcher(repository: Repository) {
+trait Matcher {
+
+  protected def repository: Repository
 
   private val userAgentPrefixTrie = new PatriciaTrie[String, Device](StringKeyAnalyzer.INSTANCE)
   private val userAgentSuffixTrie = new PatriciaTrie[String, Device](StringKeyAnalyzer.INSTANCE)

@@ -13,23 +13,23 @@ class WurflSpec extends Specification {
   "Wurfl" should {
     "create" in {
       "without patch" in {
-        new Wurfl("classpath:///root.xml") must be_!=(null)
+        Wurfl("classpath:///root.xml").build() must be_!=(null)
       }
       "with patches" in {
-        new Wurfl("classpath:///root.xml", "classpath:///add_device_patch.xml") must be_!=(null)
+        Wurfl("classpath:///root.xml", "classpath:///add_device_patch.xml").build() must be_!=(null)
       }
     }
     "match device" in {
       "perfect match" in {
-        val wurfl = new Wurfl("classpath:///root.xml")
+        val wurfl = Wurfl("classpath:///root.xml").build()
         wurfl.device(Headers("user-agent"->List("DEVICE A"))) must not(beNull)
       }
       "nearest match" in {
-        val wurfl = new Wurfl("classpath:///root.xml")
+        val wurfl = Wurfl("classpath:///root.xml").build()
         wurfl.device(Headers("user-agent"->List("DEVICE"))) must not(beNull)
       }
       "real userAgent" in {
-        val wurfl = new Wurfl("classpath:///wurfl-regression.xml")
+        val wurfl = Wurfl("classpath:///wurfl-regression.xml").build()
 
         TestUtils.loadRequestDevicesFile.forall{u =>
           wurfl.device(Headers("user-agent"->Seq(u.userAgent))).id must beEqual(u.id)
@@ -37,4 +37,5 @@ class WurflSpec extends Specification {
       }
     }
   }
+
 }
