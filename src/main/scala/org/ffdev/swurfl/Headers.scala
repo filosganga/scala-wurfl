@@ -21,8 +21,6 @@
 
 package org.ffdev.swurfl
 
-import scalaj.collection.Imports._
-
 /**
  * Created by IntelliJ IDEA.
  * User: filippodeluca

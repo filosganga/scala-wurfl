@@ -23,7 +23,7 @@ package org.ffdev.swurfl.matching
 
 import scala.collection.mutable
 
-import scalaj.collection.Imports._
+import collection.JavaConversions._
 import java.util.Map.Entry
 import org.ardverk.collection._
 
@@ -87,11 +87,14 @@ trait Matcher {
 
     val matchableDevices = devices.filter(_.userAgent.isDefined)
 
+    val prefixMap = asJavaMap(matchableDevices.map(d=>(d.userAgent.get->d)).toMap)
+    val suffixMap = asJavaMap(matchableDevices.map(d=>d.userAgent.get.reverse->d).toMap)
+
     userAgentPrefixTrie.clear()
-    userAgentPrefixTrie.putAll(matchableDevices.map(d=>(d.userAgent.get->d)).toMap.asJava)
+    userAgentPrefixTrie.putAll(prefixMap)
 
     userAgentSuffixTrie.clear()
-    userAgentSuffixTrie.putAll(matchableDevices.map(d=>d.userAgent.get.reverse->d).toMap.asJava)
+    userAgentSuffixTrie.putAll(suffixMap)
   }
 }
 

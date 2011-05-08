@@ -27,7 +27,7 @@ import repository.{Repository, InMemoryRepository, Resource}
 
 class Wurfl private(protected val repository: Repository) extends Matcher {
 
-  protected var eventListener: (Any, String) => Unit = (source, event) => _
+  protected var eventListener: (Any, String) => Unit = (source, event) => Unit
 
   def patch(p: String): Wurfl = {
     patch(new XmlResource(p))
