@@ -25,6 +25,8 @@ syntax: glob
 # idea
 .idea
 *.iml
+*.ipr
+*.iws
 
 # building
 /target
