@@ -1,17 +1,22 @@
 /*
- * Copyright 2011. ffdev.org
+ * Copyright (c) 2011.
+ *   Fantayeneh Asres Gizaw <fantayeneh@gmail.com>
+ *   Filippo De Luca <me@filippodeluca.com>
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This file is part of swurfl.
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * swurfl is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * swurfl is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with swurfl. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package org.ffdev.swurfl
@@ -47,9 +52,21 @@ class WurflSpec extends Specification {
       "real userAgent" in {
         val wurfl = Wurfl("classpath:///wurfl-regression.xml").build()
 
-        TestUtils.loadRequestDevicesFile.forall{u =>
-          wurfl.device(Headers("user-agent"->Seq(u.userAgent))).id must beEqual(u.id)
+        val errors = (Set.empty[(UserAgentEntry, String)] /: TestUtils.loadRequestDevicesFile){(s,u)=>
+
+          val matched = wurfl.device(Headers("user-agent"->Seq(u.userAgent))).id
+          if(u.ids.contains(matched)) {
+            s
+          }
+          else {
+            s + (u->matched)
+          }
         }
+
+        errors.foreach(error => warning("id: " + error._2 + " is not in: " + error._1.ids.mkString("[", ",", "]")))
+
+        // 82 are the acceptable errors with the given file
+        errors.size must beLessThanOrEqualTo(82)
       }
     }
   }

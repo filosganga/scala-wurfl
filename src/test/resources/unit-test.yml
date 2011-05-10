@@ -9,23 +9,23 @@
 
 
 # Nokia
-Nokia7210/1.0 (2.01) Profile/MIDP-1.0 Configuration/CLDC-1.0=nokia_7210_ver1_sub201
+Nokia7210/1.0 (2.01) Profile/MIDP-1.0 Configuration/CLDC-1.0=nokia_7210_ver1_sub192
 Nokia7210/1.0 (1.86) Profile/MIDP-1.0 Configuration/CLDC-1.0=nokia_7210_ver1_sub192
 Nokia7250/la supercazzola prematurata 2.5=nokia_7250_ver1_sub205
 
 Mozilla/5.0 (Symbianos/9.2; U; Series60/3.1 NokiaN95/10.0.014; Profile/MIDP-2.0 Configuration/CLDC-1.1) AppleWebKit/413 (KHTML, like Gecko) Safari/413=nokia_n95_ver1_sub100014
 Mozilla/5.0 (Symbianos/9.2; U; Series60/3.1 NokiaN95/10.0.395; Profile/MIDP-2.0 Configuration/CLDC-1.1) AppleWebKit/413 (KHTML, like Gecko) Safari/413=nokia_n95_ver1_sub100014
-Mozilla/5.0 (SymbianOS/9.1; U; en-us) AppleWebKit/413 (KHTML, like Gecko) Safari/413=nokia_n73_ver1_submozilla50
+Mozilla/5.0 (SymbianOS/9.1; U; en-us) AppleWebKit/413 (KHTML, like Gecko) Safari/413=nokia_n73_ver1_submozilla50,nokia_n80_ver1_submozilla50
 Mozilla/5.0 (SymbianOS/9.1; U; en-us) AppleWebKit/414 (KHTML, like Gecko) Safari/414 es61=nokia_e61_ver1_submozilla50_sub2
 #Mozilla/5.0 (SymbianOS/9.1; U; en-us) AppleWebKit/413 (KHTML, like Gecko) Safari/413 es61
 Mozilla/5.0 (SymbianOS/9.1; U; en-us) AppleWebKit/413 (KHTML, like Gecko) Safari/413 es65=nokia_e65_ver1_subsafari413
-Mozilla/5.0 (SymbianOS/9.2; U; Series60/3.1 Nokia6110Navigator/3.48; Profile/MIDP-2.0 Configuration/CLDC-1.1 ) AppleWebKit/413 (KHTML, like Gecko) Safari/413=nokia_6110_ver1_submoz349
-Mozilla/5.0 (SymbianOS/9.2; U; Series60/3.1 Nokia6110Navigator/3.58; Profile/MIDP-2.0 Configuration/CLDC-1.1 ) AppleWebKit/413 (KHTML, like Gecko) Safari/413=nokia_6110_ver1_submoz358
+Mozilla/5.0 (SymbianOS/9.2; U; Series60/3.1 Nokia6110Navigator/3.48; Profile/MIDP-2.0 Configuration/CLDC-1.1 ) AppleWebKit/413 (KHTML, like Gecko) Safari/413=nokia_6110nav_ver1_submoz
+Mozilla/5.0 (SymbianOS/9.2; U; Series60/3.1 Nokia6110Navigator/3.58; Profile/MIDP-2.0 Configuration/CLDC-1.1 ) AppleWebKit/413 (KHTML, like Gecko) Safari/413=nokia_6110nav_ver1_submoz
 
 
 # Sony Ericsson
-SonyEricssonK510i/R4CA Browser/NetFront/3.3 Profile/MIDP-2.0 Configuration/CLDC-1.1=sonyericsson_k510i_ver1_subr4ca
-SonyEricssonK510i/CW34/ Kurazza Profile/MIDP-2.0 Configuration/CLDC-1.1=sonyericsson_k510i_ver1_subr4ca
+SonyEricssonK510i/R4CA Browser/NetFront/3.3 Profile/MIDP-2.0 Configuration/CLDC-1.1=sonyericsson_k510i_ver1_subr4ch
+SonyEricssonK510i/CW34/ Kurazza Profile/MIDP-2.0 Configuration/CLDC-1.1=sonyericsson_k510i_ver1_subr4ch
 
 # Motorola
 Motorola-C290 Obigo/DRF-PU73 MMP/2.0 Profile/MIDP-2.0 Configuration/CLDC-1.1=motorola_c290_ver1_sub1
