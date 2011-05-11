@@ -22,22 +22,11 @@
 package org.ffdev.swurfl.matching.trie
 
 import collection.{Seq, mutable}
+import util.control.Breaks
 
 class PatriciaTrie[A, B](implicit keySupport: KeySupport[A]) extends Trie[A, B] {
 
   case class Node(msd: Int, key: Option[A], var value: Option[B], var left: Node = null, var right: Node = null) {
-
-    def search(skey: A, smsd: Int): Node = {
-      if (this.msd <= smsd) {
-        this
-      }
-      else if(!keySupport.isSet(skey, this.msd)) {
-        left.search(skey, this.msd)
-      }
-      else {
-        right.search(skey, this.msd)
-      }
-    }
 
     def put(pmsd: Int, pkey: A, pvalue: B, parent: Node): Node = {
       if (this.msd >= pmsd || this.msd <= parent.msd) {
@@ -82,7 +71,7 @@ class PatriciaTrie[A, B](implicit keySupport: KeySupport[A]) extends Trie[A, B] 
 
   def iterator: Iterator[(A, B)] = toSeq.iterator
 
-  def get(key: A): Option[B] = root.left.search(key, -1) match {
+  def get(key: A): Option[B] = searchNode(key) match {
     case Node(_, Some(k), v, _, _) if k == key => v
     case _ => None
   }
@@ -94,18 +83,20 @@ class PatriciaTrie[A, B](implicit keySupport: KeySupport[A]) extends Trie[A, B] 
     case _ => this
   }
 
+
   def +=(kv: (A, B)): this.type = {
 
     val (key, value) = kv
 
-    root.left.search(key, -1) match {
+    searchNode(key) match {
       case n: Node if n.key.exists(_==key) => {
         n.value = Some(value)
       }
       case n: Node => {
-        var msd = 0;
-        while (keySupport.isSet(key, msd) == keySupport.isSet(n.key, msd))
-          msd = msd + 1
+
+        val msd = Iterator.from(0).indexWhere{i=>
+          keySupport.isSet(key, i) != keySupport.isSet(n.key, i)
+        }
 
         root.left = root.left.put(msd, key, value, root)
       }
@@ -115,13 +106,28 @@ class PatriciaTrie[A, B](implicit keySupport: KeySupport[A]) extends Trie[A, B] 
   }
 
 
+  private def searchNode(key: A): Node = {
+
+    var prev = root
+    var curr = root.left
+
+    while(prev.msd < curr.msd) {
+      prev = curr
+      curr = if(!keySupport.isSet(key, curr.msd)) curr.left else curr.right
+    }
+
+    curr
+  }
+
+
   def search(key: A): Option[B] = {
-    root.left.search(key, -1).value
+
+    searchNode(key).value
   }
 
 
   def searchCandidates(key: A): Seq[(A,B)] = {
-    val nearest = root.left.search(key, -1);
+    val nearest = searchNode(key)
     nearest.foldLeft(mutable.ArrayBuffer.empty[(A,B)], -1){(s,item)=>
       s += item
     }.toSeq

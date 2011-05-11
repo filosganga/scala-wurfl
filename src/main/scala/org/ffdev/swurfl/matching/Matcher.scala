@@ -31,6 +31,7 @@ trait Matcher {
   private val userAgentPrefixTrie = new PatriciaTrie[String, Device]
   private val userAgentSuffixTrie = new PatriciaTrie[String, Device]
 
+
   init(repository)
 
   def device(headers: Headers): Device = {
@@ -40,9 +41,10 @@ trait Matcher {
 
   private val userAgentMatch: (Headers) => Option[Device] = (headers: Headers) => headers.userAgent match {
     case Some(userAgent) => {
+      val normalized = (userAgent /: normalizers){(ua,n)=>n(ua)}
       // Chain of responsibility
       (None.asInstanceOf[Option[Device]] /: Seq(perfectMatch, nearestMatch)){(r,m)=>
-        if(r.isEmpty) m(userAgent) else r
+        if(r.isEmpty) m(normalized) else r
       }
     }
     case None => None
@@ -81,13 +83,22 @@ trait Matcher {
 
   private def init(devices: Traversable[Device]) {
 
-    val matchableDevices = devices.filter(_.userAgent.isDefined)
-
     userAgentPrefixTrie.clear()
-    userAgentPrefixTrie ++= matchableDevices.map(d=>(d.userAgent.get->d))
-
     userAgentSuffixTrie.clear()
-    userAgentSuffixTrie ++= matchableDevices.map(d=>d.userAgent.get.reverse->d)
+
+    devices.foreach{d=>
+      d.userAgent match {
+        case None =>
+        case Some(txt) => txt.trim match {
+          case "root" =>
+          case "" =>
+          case userAgent => {
+            userAgentPrefixTrie += userAgent->d
+            userAgentSuffixTrie += userAgent.reverse->d
+          }
+        }
+      }
+    }
   }
 }
 
