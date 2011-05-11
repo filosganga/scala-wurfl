@@ -39,7 +39,6 @@ class PatriciaTrie[A, B](implicit keySupport: KeySupport[A]) extends Trie[A, B] 
       }
     }
 
-
     def put(pmsd: Int, pkey: A, pvalue: B, parent: Node): Node = {
       if (this.msd >= pmsd || this.msd <= parent.msd) {
         val node = new Node(pmsd, Some(pkey), Some(pvalue))
@@ -123,9 +122,9 @@ class PatriciaTrie[A, B](implicit keySupport: KeySupport[A]) extends Trie[A, B] 
 
   def searchCandidates(key: A): Seq[(A,B)] = {
     val nearest = root.left.search(key, -1);
-    nearest.foldLeft(Seq.empty[(A,B)], -1){(s,item)=>
-      s :+ item
-    }
+    nearest.foldLeft(mutable.ArrayBuffer.empty[(A,B)], -1){(s,item)=>
+      s += item
+    }.toSeq
   }
 
   override def retain(p: (A, B) => Boolean): this.type = {
@@ -143,10 +142,9 @@ class PatriciaTrie[A, B](implicit keySupport: KeySupport[A]) extends Trie[A, B] 
   }
 
   override def toSeq: Seq[(A, B)] = {
-    foldLeft(Seq.empty[(A, B)]) {
-      (s, item) =>
-        s :+ item
-    }
+    (mutable.ArrayBuffer.empty[(A, B)] /: this){(b,i)=>
+      b += i
+    }.toSeq
   }
 
   override def foreach[U](f: ((A, B)) => U) {
