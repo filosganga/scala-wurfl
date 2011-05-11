@@ -21,19 +21,15 @@
 
 package org.ffdev.swurfl.matching
 
-import scala.collection.mutable
-
-import collection.JavaConversions._
-import java.util.Map.Entry
-import org.ardverk.collection._
 
 import org.ffdev.swurfl.{Wurfl, Device, Headers}
+import org.ffdev.swurfl.matching.trie.PatriciaTrie
 
 trait Matcher {
   this: Wurfl =>
 
-  private val userAgentPrefixTrie = new PatriciaTrie[String, Device](StringKeyAnalyzer.INSTANCE)
-  private val userAgentSuffixTrie = new PatriciaTrie[String, Device](StringKeyAnalyzer.INSTANCE)
+  private val userAgentPrefixTrie = new PatriciaTrie[String, Device]
+  private val userAgentSuffixTrie = new PatriciaTrie[String, Device]
 
   init(repository)
 
@@ -53,8 +49,8 @@ trait Matcher {
   }
 
   private val perfectMatch: (String)=>Option[Device] = (userAgent: String) => userAgentPrefixTrie.get(userAgent) match {
-    case null => None
-    case matched => {
+    case None => None
+    case Some(matched) => {
       eventListener(this, "Device: " + matched.id + "matched by perfectMatch")
       Some(matched)
     }
@@ -63,18 +59,18 @@ trait Matcher {
   // Add actors
   private val nearestMatch: (String)=>Option[Device] = (userAgent: String) => {
 
-    // TODO Dummy tolerance
-    var tolerance = (userAgent.length * 0.66).toInt
+    val prefixes = userAgentPrefixTrie.searchCandidates(userAgent)
+    val suffixes = userAgentSuffixTrie.searchCandidates(userAgent.reverse)
 
-    val prefixes = Matcher.selectCandidates(userAgent, userAgentPrefixTrie)
-    val suffixes = Matcher.selectCandidates(userAgent.reverse, userAgentSuffixTrie)
-    val commons = prefixes.filterKeys(suffixes.contains(_))
+    val candidates: Seq[(String, Device)] = prefixes.filter(suffixes.contains(_)) match {
+      case s if s.nonEmpty => s
+      case _ => prefixes
+    }
 
-    val candidates: Map[String, Device] = if (commons.isEmpty) prefixes else commons
 
     if(candidates.nonEmpty){
-      val matched = candidates.min(Ordering.by((e: (String, Device)) => Matcher.ld(userAgent, e._1)))._2
-      eventListener(this, "Device: " + matched.id + "matched by perfectMatch")
+      val matched = candidates.min(Ordering.by((e: (String, Device)) => ld(userAgent, e._1)))._2
+      eventListener(this, "Device: " + matched.id + "matched by nearestMatch")
       Some(matched)
     }
     else {
@@ -87,77 +83,13 @@ trait Matcher {
 
     val matchableDevices = devices.filter(_.userAgent.isDefined)
 
-    val prefixMap = asJavaMap(matchableDevices.map(d=>(d.userAgent.get->d)).toMap)
-    val suffixMap = asJavaMap(matchableDevices.map(d=>d.userAgent.get.reverse->d).toMap)
-
     userAgentPrefixTrie.clear()
-    userAgentPrefixTrie.putAll(prefixMap)
+    userAgentPrefixTrie ++= matchableDevices.map(d=>(d.userAgent.get->d))
 
     userAgentSuffixTrie.clear()
-    userAgentSuffixTrie.putAll(suffixMap)
+    userAgentSuffixTrie ++= matchableDevices.map(d=>d.userAgent.get.reverse->d)
   }
 }
 
-object Matcher {
-
-  private[Matcher] def selectCandidates(userAgent: String, trie: Trie[String, Device]): Map[String, Device] = {
-    val cursor = new WurflCursor
-    trie.select(userAgent, cursor)
-    cursor.candidates.toMap
-  }
-
-  // FIXME To Fix ArrayOutOfBoundEx
-  private[Matcher] def ld(s: String, t: String): Int = {
-
-    val sl = s.length
-    val tl = t.length
-
-    if(sl==0) {
-      tl
-    }
-    else if(tl==0) {
-      sl
-    }
-    else {
-      var pc = Array.range(0, sl + 1)
-
-      for(j <- 1 to tl) {
-        val tj = t(j - 1)
-        val dst = Array.ofDim[Int](sl + 1)
-
-        dst(0) = j
-
-        for(i <- 1 to sl) {
-          val cost = if(s(i-1) == tj) 0 else 1
-          dst(i) = Seq(dst(i - 1) + 1, pc(i) + 1, pc(i-1) + cost).min
-        }
-
-        pc = dst
-      }
-
-      pc(sl)
-    }
-  }
-
-  private class WurflCursor extends Cursor[String, Device] {
-
-    val candidates = mutable.Map[String, Device]()
-    var minLenght = -1
-
-    override def select(entry: Entry[_ <: String, _ <: Device]): Cursor.Decision = {
-
-      if(minLenght<0)
-        minLenght=StringKeyAnalyzer.INSTANCE.lengthInBits(entry.getKey)
-
-      if(StringKeyAnalyzer.INSTANCE.lengthInBits(entry.getKey)<minLenght) {
-        Cursor.Decision.EXIT
-      }
-      else {
-        candidates += (entry.getKey->entry.getValue)
-        Cursor.Decision.CONTINUE
-      }
-    }
-  }
-}
 
 
