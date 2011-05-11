@@ -22,6 +22,7 @@
 package org.ffdev.swurfl
 
 import org.specs.Specification
+import java.util.Date
 
 /**
  * Document... 
@@ -52,6 +53,7 @@ class WurflSpec extends Specification {
       "real userAgent" in {
         val wurfl = Wurfl("classpath:///wurfl-regression.xml").build()
 
+        val start = new Date
         val errors = (Set.empty[(UserAgentEntry, String)] /: TestUtils.loadRequestDevicesFile){(s,u)=>
 
           val matched = wurfl.device(Headers("user-agent"->Seq(u.userAgent))).id
@@ -62,8 +64,12 @@ class WurflSpec extends Specification {
             s + (u->matched)
           }
         }
+        val stop = new Date
+        val duration = stop.getTime - start.getTime
 
         errors.foreach(error => warning("id: " + error._2 + " is not in: " + error._1.ids.mkString("[", ",", "]")))
+        warning("Test effective duration: " + duration + "ms")
+
 
         // 82 are the acceptable errors with the given file
         errors.size must beLessThanOrEqualTo(83)
