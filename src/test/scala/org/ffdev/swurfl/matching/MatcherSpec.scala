@@ -19,15 +19,37 @@
  * along with swurfl. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.filippodeluca.swurfl.matching
+package org.ffdev.swurfl.matching
+import org.specs.Specification
 
 
-import org.ffdev.swurfl.matching.Matcher
-import org.ffdev.swurfl.Headers
+class MatcherSpec extends Specification {
+
+
+  "Matcher" should {
+    "normalize" in {
+      "YesWapPhoneProxy" in {
+        val normalized = normalizeYesWapMobilePhoneProxy("PippoBaudo Mozilla/4.0 (YesWAP mobile phone proxy)   ")
+        normalized must beEqual("PippoBaudo")
+      }
+      "BabelFish" in {
+        val normalized = normalizeBabelFish("PippoBaudo (via babelfish.yahoo.com)   ")
+        normalized must beEqual("PippoBaudo")
+      }
+      "UP.Link" in {
+        val normalized = normalizeUpLink("PippoBaudo UP.Link bla bla bla")
+        normalized must beEqual("PippoBaudo")
+      }
+      "Vodafone SN" in {
+        val normalized = normalizeVodafoneSn("PippoBaudo /SN123456 bla bla bla")
+        normalized must beEqual("PippoBaudo /SNXXXXXX bla bla bla")
+      }
+    }
+  }
 
 
 
-class MatcherSpec {
+
 
 //  @Test
 //  def testCommonPrefixUserAgents() {

@@ -23,12 +23,27 @@ import sbt._
 
 class SwurflProject(info: ProjectInfo) extends DefaultProject(info) {
 
+  override def managedStyle = ManagedStyle.Maven
+  val publishTo = "Sonatype OSS Maven Repository Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
+
   override def packageSrcJar= defaultJarPath("-sources.jar")
   val sourceArtifact = Artifact.sources(artifactID)
 
-  //override def packageDocsJar = defaultJarPath("-javadoc.jar")
-  //val docsArtifact = Artifact.javadoc(artifactID)
-  override def packageToPublishActions = super.packageToPublishActions ++ Seq(packageSrc)
+  override def packageDocsJar = defaultJarPath("-javadoc.jar")
+  val docsArtifact = Artifact.javadoc(artifactID)
+
+  override def packageToPublishActions = super.packageToPublishActions ++ Seq(packageSrc, packageDocs)
+
+  override def pomExtra =
+  <licenses>
+    <license>
+      <name>GPLv3</name>
+      <url>http://www.gnu.org/licenses/gpl-3.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+
 
   val specs = "org.scala-tools.testing" %% "specs" % "1.6.7" % "test"
   val mockito = "org.mockito" % "mockito-all" % "1.8.5" % "test"

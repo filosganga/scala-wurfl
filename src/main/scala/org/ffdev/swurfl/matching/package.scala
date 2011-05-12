@@ -24,7 +24,7 @@ package org.ffdev.swurfl
 package object matching {
 
   // FIXME To Fix ArrayOutOfBoundEx
-  def ld(s: String, t: String): Int = {
+  val ld = (s: String, t: String) => {
 
     val sl = s.length
     val tl = t.length
@@ -54,6 +54,48 @@ package object matching {
 
       pc(sl)
     }
+  }
+
+
+  /**
+   * Normalize the User-Agents containing the
+   *   "Mozilla/4.0 (YesWAP mobile phone proxy)"
+   * statement, removing it
+   */
+  val normalizeYesWapMobilePhoneProxy = (ua: String) => {
+    ua.replace("Mozilla/4.0 (YesWAP mobile phone proxy)", "").trim
+  }
+
+  /**
+   * Normalize the User-Agent containing the
+   *   "(via babelfish.yahoo.com)"
+   * statement, removing it
+   */
+  val normalizeBabelFish = (ua: String) => {
+    ua.replace("(via babelfish.yahoo.com)", "").trim
+  }
+
+  /**
+   * Normalize the User-Agent ending with the
+   *   "UP.Link"
+   * statement, removing from it
+   */
+  val normalizeUpLink = (ua: String) => {
+    ua.split("UP.Link")(0).trim
+  }
+
+  /**
+   * Normalize the User-Agent containing a serial number pattern:
+   *   "/SNnnnn"
+   * replacing numbers with sequence of "X" character.
+   */
+  private val vodafoneSnPattern = """/SN(\d+)\s""".r
+
+  val normalizeVodafoneSn = (ua: String) => {
+
+    vodafoneSnPattern.replaceAllIn(ua, m =>
+      "/SN" + "X" * (m.end(1) - m.start(1)) + " "
+    )
   }
 
 }

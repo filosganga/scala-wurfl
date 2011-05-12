@@ -27,8 +27,6 @@ import repository.{Repository, InMemoryRepository, Resource}
 
 class Wurfl private(protected val repository: Repository) extends Matcher {
 
-  protected val normalizers: Iterable[(String)=>String] = Seq((s: String) => s)
-
   protected var eventListener: (Any, String) => Unit = (source, event) => Unit
 
   def patch(p: String): Wurfl = {

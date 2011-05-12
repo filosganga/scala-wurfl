@@ -28,9 +28,11 @@ import org.ffdev.swurfl.matching.trie.PatriciaTrie
 trait Matcher {
   this: Wurfl =>
 
+  protected val normalizers: Iterable[(String)=>String] = Seq(
+    normalizeUpLink, normalizeBabelFish, normalizeYesWapMobilePhoneProxy, normalizeVodafoneSn)
+
   private val userAgentPrefixTrie = new PatriciaTrie[String, Device]
   private val userAgentSuffixTrie = new PatriciaTrie[String, Device]
-
 
   init(repository)
 
@@ -93,8 +95,11 @@ trait Matcher {
           case "root" =>
           case "" =>
           case userAgent => {
-            userAgentPrefixTrie += userAgent->d
-            userAgentSuffixTrie += userAgent.reverse->d
+
+            val normalized = (userAgent /: normalizers){(ua,n)=>n(ua)}
+
+            userAgentPrefixTrie += normalized->d
+            userAgentSuffixTrie += normalized.reverse->d
           }
         }
       }
