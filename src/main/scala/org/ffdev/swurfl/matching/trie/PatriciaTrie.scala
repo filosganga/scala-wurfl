@@ -22,7 +22,6 @@
 package org.ffdev.swurfl.matching.trie
 
 import collection.{Seq, mutable}
-import util.control.Breaks
 
 class PatriciaTrie[A, B](implicit keySupport: KeySupport[A]) extends Trie[A, B] {
 

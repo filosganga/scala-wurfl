@@ -8,13 +8,6 @@ syntax: glob
 *.old
 .DS_Store
 
-# sbt
-/lib_managed/
-/project/boot/
-/project/build/target/
-/project/plugins/target/
-/project/plugins/lib_managed/
-
 # eclipse conf file
 .settings
 .classpath
@@ -29,8 +22,8 @@ syntax: glob
 *.iws
 
 # building
-/target
-/build
+target
+build
 null
 tmp*
 temp*

@@ -22,7 +22,7 @@
 package org.filippodeluca.swurfl
 
 import org.ffdev.swurfl.Headers
-import org.specs.Specification
+import org.specs2.mutable._
 
 
 class HeadersSpec extends Specification {
@@ -43,7 +43,7 @@ class HeadersSpec extends Specification {
         val userAgents = List("One", "Two", "Three")
         val headers = Headers("user-agent"->userAgents)
 
-        headers.userAgent must beEqual(Some(userAgents(0)))
+        headers.userAgent must beEqualTo(Some(userAgents(0)))
       }
       "return None if not defined" in {
 
@@ -56,7 +56,7 @@ class HeadersSpec extends Specification {
         val accepts = List("One", "Two", "Three")
         val headers = Headers("accept"->accepts)
 
-        headers.accept must beEqual(Some(accepts(0)))
+        headers.accept must beEqualTo(Some(accepts(0)))
       }
       "return None if not defined" in {
         val headers = Headers("User-Agent"->List("Mozilla"))

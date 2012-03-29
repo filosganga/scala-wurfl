@@ -20,7 +20,7 @@
  */
 
 package org.ffdev.swurfl.matching
-import org.specs.Specification
+import org.specs2.mutable._
 
 
 class MatcherSpec extends Specification {
@@ -30,19 +30,19 @@ class MatcherSpec extends Specification {
     "normalize" in {
       "YesWapPhoneProxy" in {
         val normalized = normalizeYesWapMobilePhoneProxy("PippoBaudo Mozilla/4.0 (YesWAP mobile phone proxy)   ")
-        normalized must beEqual("PippoBaudo")
+        normalized must beEqualTo("PippoBaudo")
       }
       "BabelFish" in {
         val normalized = normalizeBabelFish("PippoBaudo (via babelfish.yahoo.com)   ")
-        normalized must beEqual("PippoBaudo")
+        normalized must beEqualTo("PippoBaudo")
       }
       "UP.Link" in {
         val normalized = normalizeUpLink("PippoBaudo UP.Link bla bla bla")
-        normalized must beEqual("PippoBaudo")
+        normalized must beEqualTo("PippoBaudo")
       }
       "Vodafone SN" in {
         val normalized = normalizeVodafoneSn("PippoBaudo /SN123456 bla bla bla")
-        normalized must beEqual("PippoBaudo /SNXXXXXX bla bla bla")
+        normalized must beEqualTo("PippoBaudo /SNXXXXXX bla bla bla")
       }
     }
   }

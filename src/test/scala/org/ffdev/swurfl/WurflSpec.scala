@@ -21,7 +21,7 @@
 
 package org.ffdev.swurfl
 
-import org.specs.Specification
+import org.specs2.mutable._
 import java.util.Date
 
 /**
@@ -67,8 +67,8 @@ class WurflSpec extends Specification {
         val stop = new Date
         val duration = stop.getTime - start.getTime
 
-        errors.foreach(error => warning("id: " + error._2 + " is not in: " + error._1.ids.mkString("[", ",", "]")))
-        warning("Test effective duration: " + duration + "ms")
+        // errors.foreach(error => warning("id: " + error._2 + " is not in: " + error._1.ids.mkString("[", ",", "]")))
+        // warning("Test effective duration: " + duration + "ms")
 
 
         // 82 are the acceptable errors with the given file

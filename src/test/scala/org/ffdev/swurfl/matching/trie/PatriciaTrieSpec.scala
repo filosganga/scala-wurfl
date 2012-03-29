@@ -16,7 +16,7 @@
 
 package org.ffdev.swurfl.matching.trie
 
-import org.specs.Specification
+import org.specs2.mutable._
 
 
 class PatriciaTrieSpec extends Specification {
@@ -28,7 +28,7 @@ class PatriciaTrieSpec extends Specification {
 
       trie += "Foo"->23
 
-      trie.size must  be(1)
+      trie.size must beEqualTo(1)
       trie.get("Foo") must beEqualTo(Some(23))
       trie.get("Bar") must beNone
     }
@@ -49,7 +49,7 @@ class PatriciaTrieSpec extends Specification {
       trie.get("C") must beEqualTo(Some(5))
       trie.get("H") must beEqualTo(Some(6))
       trie.get("X") must beNone
-      trie.size must be(6)
+      trie.size must beEqualTo(6)
     }
     "put and search values" in {
       val trie = new PatriciaTrie[String, Int]
@@ -61,7 +61,7 @@ class PatriciaTrieSpec extends Specification {
       trie += ("ABB"->5)
       trie += ("ABC"->6)
 
-      trie.search("ABD") must beEqual(Some(4))
+      trie.search("ABD") must beEqualTo(Some(4))
     }
     "put and search candidates" in {
       val trie = new PatriciaTrie[String, Int]
@@ -73,7 +73,7 @@ class PatriciaTrieSpec extends Specification {
       trie += ("ABB"->5)
       trie += ("ABC"->6)
 
-      trie.searchCandidates("ABD") must beEqual(Seq("ABA"->4, "ABB"->5, "ABC"->6))
+      trie.searchCandidates("ABD") must beEqualTo(Seq("ABA"->4, "ABB"->5, "ABC"->6))
     }
 
   }

@@ -21,7 +21,7 @@
 
 package org.filippodeluca.swurfl.repository.xml
 
-import org.specs.Specification
+import org.specs2.mutable._
 import org.ffdev.swurfl.repository.xml.XmlResource
 
 
