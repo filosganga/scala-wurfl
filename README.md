@@ -16,7 +16,7 @@ Exaples
     val patched = wurfl.patch("classpath:///patch_one.xml")
 Download
 --------
-sWURFL is available to the Sonatype OSS Maven repository:
+scala-wurfl is available to the Sonatype OSS Maven repository:
 
  *    Snapshots [http://oss.sonatype.org/content/repositories/snapshots/](http://oss.sonatype.org/content/repositories/snapshots/)
  *    Releases [http://oss.sonatype.org/content/repositories/releases/](http://oss.sonatype.org/content/repositories/releases/)

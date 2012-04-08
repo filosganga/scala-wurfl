@@ -1,22 +1,19 @@
 /*
- * Copyright (c) 2011.
- *   Fantayeneh Asres Gizaw <fantayeneh@gmail.com>
+ * Copyright 2012.
  *   Filippo De Luca <me@filippodeluca.com>
+ *   Fantayeneh Asres Gizaw <fantayeneh@gmail.com>
  *
- * This file is part of swurfl.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * swurfl is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * swurfl is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with swurfl. If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.ffdev.swurfl
@@ -25,10 +22,10 @@ import org.specs2.mutable._
 import java.util.Date
 
 /**
- * Document... 
+ * TODO Document...
  *
- * @author: Filippo De Luca
- * @version: 1.0 15/04/11/04/2011
+ * @author Filippo De Luca
+ * @version 1.0 15/04/11/04/2011
  */
 class WurflSpec extends Specification {
 
@@ -37,8 +34,11 @@ class WurflSpec extends Specification {
       "without patch" in {
         Wurfl("classpath:///root.xml").build() must be_!=(null)
       }
-      "with patches" in {
-        Wurfl("classpath:///root.xml", "classpath:///add_device_patch.xml").build() must be_!=(null)
+      "with one patch" in {
+        Wurfl("classpath:///root.xml").withPatch("classpath:///add_device_patch.xml").build() must be_!=(null)
+      }
+      "with more patches" in {
+        Wurfl("classpath:///root.xml").withPatches("classpath:///add_device_patch.xml", "classpath:///add_group_patch.xml").build() must be_!=(null)
       }
     }
     "match device" in {
