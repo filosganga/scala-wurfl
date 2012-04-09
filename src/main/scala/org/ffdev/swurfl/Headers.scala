@@ -18,13 +18,6 @@
 
 package org.ffdev.swurfl
 
-/**
- * Created by IntelliJ IDEA.
- * User: filippodeluca
- * Date: 20/12/10
- * Time: 11.19
- * To change this template use File | Settings | File Templates.
- */
 
 class Headers(private val delegate : Map[String, Seq[String]]) {
 
@@ -72,20 +65,9 @@ object Headers {
 
   def apply(xs: scala.Tuple2[String, Seq[String]]*) = new Headers(xs:_*)
 
-  def fromUserAgent(ua: String) = new Headers("User-Agent"->List(ua))
+  @deprecated("Use userAgent() instead")
+  def fromUserAgent(ua: String) = userAgent(ua)
 
-//  // TODO Move this to another package
-//  def apply(request : HttpServletRequest) = {
-//
-//    var headers : Map[String, Seq[String]] = Map();
-//
-//    request.getHeaderNames.asScala.asInstanceOf[Iterable[String]].foreach((name : String) => {
-//
-//      val values : Seq[String] = request.getHeaders(name).asInstanceOf[java.util.List[String]].asScala.toList
-//      headers += name.toLowerCase -> values
-//
-//    })
-//
-//    new Headers(headers)
-//  }
+  def userAgent(ua: String) = new Headers("User-Agent"->List(ua))
+
 }

@@ -7,12 +7,26 @@ Exaples
 
 ### Basic
     val wurfl = Wurfl("classpath:///root.xml").build()
-    wurfl.device(Headers("user-agent"->List("Mozilla"))){device=>
-      val xhtmlSupportLevel = device("xhtml_support_level")
-      // ...
+    val device = wurfl.device(Headers.userAgent("Mozilla"))
+
+    val xhtmlSupportLevel = device("xhtml_support_level")
+
+    device.get("xhtml_support_level").map{x=>
+        // ...
     }
 
+
 ### Patching
+
+    val wurfl = Wurfl("classpath:///root.xml")
+      .withPatch("classpath:///patch_a.xml")
+      .withPatch("classpath:///patch_b.xml")
+      .build()
+
+    val wurfl = Wurfl("classpath:///root.xml")
+      .withPatches("classpath:///patch_a.xml", "classpath:///patch_b.xml")
+      .build()
+
     val patched = wurfl.patch("classpath:///patch_one.xml")
 Download
 --------
