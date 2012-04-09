@@ -53,26 +53,25 @@ class WurflSpec extends Specification {
       "real userAgent" in {
         val wurfl = Wurfl("classpath:///wurfl-regression.xml").build()
 
-        val start = new Date
-        val errors = (Set.empty[(UserAgentEntry, String)] /: TestUtils.loadRequestDevicesFile){(s,u)=>
+        val start = System.currentTimeMillis()
 
-          val matched = wurfl.device(Headers("user-agent"->Seq(u.userAgent))).id
-          if(u.ids.contains(matched)) {
-            s
-          }
-          else {
-            s + (u->matched)
-          }
+        val errors = TestUtils.testEntries.foldLeft(Seq.empty[(Device, String, Seq[String])]){
+          (s,x)=>
+
+            wurfl.device(Headers("user-agent"->Seq(x._1))) match {
+              case d if(x._2.contains(d.id)) => s
+              case d => s :+ (d,x._1,x._2)
+            }
         }
-        val stop = new Date
-        val duration = stop.getTime - start.getTime
 
-        // errors.foreach(error => warning("id: " + error._2 + " is not in: " + error._1.ids.mkString("[", ",", "]")))
-        // warning("Test effective duration: " + duration + "ms")
+        val duration = System.currentTimeMillis() - start
+
+        errors.foreach(error => println("id: " + error._1.id + " is not in: " + error._3.mkString("[", ",", "]") + " for user-agent: " + error._2))
+        println("Test effective duration: " + duration + "ms")
 
 
         // 82 are the acceptable errors with the given file
-        errors.size must beLessThanOrEqualTo(83)
+        errors.size must beLessThanOrEqualTo(0)
       }
     }
   }

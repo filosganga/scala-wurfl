@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 import java.net.URL
 
-object PluginDef extends Build {
+object ScalaWurfl extends Build {
    
    val project = (Project("scala-wurfl", file(".")) settings(
      organization := "org.ffdev",
@@ -12,9 +12,7 @@ object PluginDef extends Build {
      crossScalaVersions := Seq("2.9.1"),
      licenses := Seq("Apache License, Version 2.0"->new URL("http://www.apache.org/licenses/LICENSE-2.0.html")),
      libraryDependencies ++= dependencies,
-     autoCompilerPlugins := true,
-     addContinuations,
-     scalacOptions += "-P:continuations:enable"
+     autoCompilerPlugins := true
    ) settings(publishSettings:_*))
    
    def publishSettings: Seq[Setting[_]] = Seq(
@@ -56,10 +54,6 @@ object PluginDef extends Build {
          </developer>
        </developers>)
    )
-   
-   def addContinuations = libraryDependencies <<= (scalaVersion, libraryDependencies) apply { (v, d) =>
-     d :+ compilerPlugin("org.scala-lang.plugins" % "continuations" % v)
-   }
    
    def dependencies = Seq(
      "org.specs2" %% "specs2" % "1.8.2" % "test",

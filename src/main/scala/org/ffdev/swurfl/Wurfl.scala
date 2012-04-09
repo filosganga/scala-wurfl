@@ -22,9 +22,7 @@ import matching.Matcher
 import repository.xml.XmlResource
 import repository.{Repository, InMemoryRepository, Resource}
 
-class Wurfl private(protected val repository: Repository) extends Matcher {
-
-  protected var eventListener: (Any, String) => Unit = (source, event) => Unit
+class Wurfl private(protected val repository: Repository, protected val eventListener: (Any, String) => Unit) extends Matcher {
 
   def patch(p: String): Wurfl = {
     patch(new XmlResource(p))
@@ -40,7 +38,7 @@ class Wurfl private(protected val repository: Repository) extends Matcher {
 
   private def patch(p: Resource, ps: Resource*): Wurfl = {
     val patchedRepo = repository.patch((p +: ps).map(_.devices):_*)
-    new Wurfl(patchedRepo)
+    new Wurfl(patchedRepo, eventListener)
   }
 
 
@@ -49,15 +47,19 @@ class Wurfl private(protected val repository: Repository) extends Matcher {
 
 object Wurfl {
 
-  def apply(main: String, patches: String*): Builder = {
-    new Builder(main, patches)
+  def apply(main: String): Builder = {
+    new Builder(main)
   }
 
-  class Builder(private val main: String, private var patches: Seq[String]) {
+  class Builder(private val main: String) {
+
+    private var patches: Seq[String] = Seq.empty
+
+    private var eventListener: (Any, String) => Unit = (src: Any, event: String)=>Unit
 
     def build(): Wurfl = {
       val repository = new InMemoryRepository(new XmlResource(main).devices, patches.map(new XmlResource(_)).map(_.devices):_*)
-      new Wurfl(repository)
+      new Wurfl(repository, eventListener)
     }
 
     def withPatch(patch: String): Builder = {

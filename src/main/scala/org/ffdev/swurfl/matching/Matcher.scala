@@ -25,8 +25,13 @@ import org.ffdev.swurfl.matching.trie.PatriciaTrie
 trait Matcher {
   this: Wurfl =>
 
-  protected val normalizers: Iterable[(String)=>String] = Seq(
-    normalizeUpLink, normalizeBabelFish, normalizeYesWapMobilePhoneProxy, normalizeVodafoneSn)
+  protected val normalizers: Iterable[Normalizer] = Seq(
+    normalizeUpLink,
+    normalizeBabelfish,
+    normalizeYesWapMobilePhoneProxy,
+    normalizeVodafoneSn,
+    normalizeMozilledBlackBerry
+  )
 
   private val userAgentPrefixTrie = new PatriciaTrie[String, Device]
   private val userAgentSuffixTrie = new PatriciaTrie[String, Device]
@@ -42,7 +47,7 @@ trait Matcher {
     case Some(userAgent) => {
       val normalized = (userAgent /: normalizers){(ua,n)=>n(ua)}
       // Chain of responsibility
-      (None.asInstanceOf[Option[Device]] /: Seq(perfectMatch, nearestMatch)){(r,m)=>
+      (None.asInstanceOf[Option[Device]] /: Seq(perfectMatch, searchMatch)){(r,m)=>
         if(r.isEmpty) m(normalized) else r
       }
     }
@@ -54,6 +59,14 @@ trait Matcher {
     case Some(matched) => {
       eventListener(this, "Device: " + matched.id + "matched by perfectMatch")
       Some(matched)
+    }
+  }
+
+  private val searchMatch: (String)=>Option[Device] = (ua: String) => userAgentPrefixTrie.search(ua) match {
+    case None => None
+    case Some(x) => {
+      eventListener(this, "Device: " + x.id + " matched by searchMatch")
+      Some(x)
     }
   }
 

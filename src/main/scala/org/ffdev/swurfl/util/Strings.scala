@@ -16,15 +16,42 @@
  * limitations under the License.
  */
 
-package org.ffdev.swurfl.matching.trie
-
-import scala.collection.mutable
+package org.ffdev.swurfl.util
 
 
-trait Trie[A,B] extends mutable.Map[A,B] {
+object Strings {
 
-  def search(key: A): Option[B]
+  // FIXME To Fix ArrayOutOfBoundEx
+  def ld(s: String, t: String) = {
 
-  def searchCandidates(key: A): Seq[(A,B)]
+    val sl = s.length
+    val tl = t.length
+
+    if(sl==0) {
+      tl
+    }
+    else if(tl==0) {
+      sl
+    }
+    else {
+      var pc = Array.range(0, sl + 1)
+
+      for(j <- 1 to tl) {
+        val tj = t(j - 1)
+        val dst = Array.ofDim[Int](sl + 1)
+
+        dst(0) = j
+
+        for(i <- 1 to sl) {
+          val cost = if(s(i-1) == tj) 0 else 1
+          dst(i) = Seq(dst(i - 1) + 1, pc(i) + 1, pc(i-1) + cost).min
+        }
+
+        pc = dst
+      }
+
+      pc(sl)
+    }
+  }
 
 }

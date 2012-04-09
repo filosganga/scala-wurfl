@@ -56,7 +56,7 @@ class PatriciaTrie[A, B](implicit keySupport: KeySupport[A]) extends Trie[A, B] 
 
     def foldLeft[Z](z: Z, fmsd: Int)(op: (Z, (A,B)) => Z): Z = {
       var result = z
-      this.foreach(fmsd)(x => result = op(result, x))
+      foreach(fmsd)(x => result = op(result, x))
       result
     }
   }

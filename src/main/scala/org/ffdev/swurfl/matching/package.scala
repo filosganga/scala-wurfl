@@ -18,6 +18,9 @@
 
 package org.ffdev.swurfl
 
+import scala.util.matching.Regex
+import scala.util.matching.Regex.Match
+
 package object matching {
 
   // FIXME To Fix ArrayOutOfBoundEx
@@ -53,32 +56,32 @@ package object matching {
     }
   }
 
+  type Normalizer = String=>String
+
+  private val normalizeRegex = (r: Regex, replacer: Match => String)=>(ua: String) => r.replaceAllIn(ua, replacer).trim
 
   /**
    * Normalize the User-Agents containing the
    *   "Mozilla/4.0 (YesWAP mobile phone proxy)"
    * statement, removing it
    */
-  val normalizeYesWapMobilePhoneProxy = (ua: String) => {
-    ua.replace("Mozilla/4.0 (YesWAP mobile phone proxy)", "").trim
-  }
+  val normalizeYesWapMobilePhoneProxy = normalizeRegex("""\s*Mozilla/4\.0 \(YesWAP mobile phone proxy\).*""".r, m=>"")
 
   /**
    * Normalize the User-Agent containing the
    *   "(via babelfish.yahoo.com)"
    * statement, removing it
    */
-  val normalizeBabelFish = (ua: String) => {
-    ua.replace("(via babelfish.yahoo.com)", "").trim
-  }
+  val normalizeBabelfish = normalizeRegex("""\s*\(via babelfish.yahoo.com\)""".r, m=>"")
 
   /**
    * Normalize the User-Agent ending with the
    *   "UP.Link"
    * statement, removing from it
    */
-  val normalizeUpLink = (ua: String) => {
-    ua.split("UP.Link")(0).trim
+  val normalizeUpLink = (ua: String) => ua match {
+    case x if(x.contains("UP.Link")) => x.substring(0, x.indexOf("UP.Link")).trim
+    case x => x
   }
 
   /**
@@ -86,13 +89,11 @@ package object matching {
    *   "/SNnnnn"
    * replacing numbers with sequence of "X" character.
    */
-  private val vodafoneSnPattern = """/SN(\d+)\s""".r
+  val normalizeVodafoneSn = normalizeRegex("""/SN(\d+)\s""".r, m=>"/SN" + "X" * (m.end(1) - m.start(1)) + " ")
 
-  val normalizeVodafoneSn = (ua: String) => {
-
-    vodafoneSnPattern.replaceAllIn(ua, m =>
-      "/SN" + "X" * (m.end(1) - m.start(1)) + " "
-    )
+  val normalizeMozilledBlackBerry = (ua: String) => ua match {
+    case x if (x.contains("BlackBerry") && x.startsWith("Mozilla")) => x.substring(x.indexOf("BlackBerry")).trim
+    case x => x
   }
 
 }
