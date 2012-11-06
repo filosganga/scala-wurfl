@@ -27,7 +27,7 @@
         <level value="INFO" />
         <appender-ref ref="STDOUT" />
     </root>
-    <logger name="org.ffdev.swurfl">
+    <logger name="org.filippodeluca.wurfl">
         <level value="DEBUG" />
     </logger>
 </configuration>

@@ -5,11 +5,11 @@ import java.net.URL
 object ScalaWurfl extends Build {
    
    val project = (Project("scala-wurfl", file(".")) settings(
-     organization := "org.ffdev",
+     organization := "org.filippodeluca",
      name := "scala-wurfl",
-     version := "1.0-SNAPSHOT",
+     version := "1.1-SNAPSHOT",
      scalaVersion := "2.9.1",
-     crossScalaVersions := Seq("2.9.1"),
+     crossScalaVersions := Seq("2.8.2", "2.9.1", "2.9.2"),
      licenses := Seq("Apache License, Version 2.0"->new URL("http://www.apache.org/licenses/LICENSE-2.0.html")),
      libraryDependencies ++= dependencies,
      autoCompilerPlugins := true
@@ -38,8 +38,8 @@ object ScalaWurfl extends Build {
  		    </license>
  	    </licenses>
        <scm>
-         <url>git@github.com:ff-dev/scala-wurfl.git</url>
-         <connection>scm:git:git@github.com:ff-dev/scala-wurfl.git</connection>
+         <url>git@github.com:filosganga/scala-wurfl.git</url>
+         <connection>scm:git:git@github.com:filosganga/scala-wurfl.git</connection>
        </scm>
        <developers>
          <developer>
