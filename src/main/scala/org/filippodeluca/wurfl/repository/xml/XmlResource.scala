@@ -69,7 +69,7 @@ class XmlResource(val uri: URI) extends Resource {
         closable.close()
       }
       catch {
-        case _ => // Ignore
+        case _: Throwable => // Ignore
       }
     }
   }

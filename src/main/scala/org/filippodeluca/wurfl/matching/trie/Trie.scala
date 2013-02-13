@@ -30,6 +30,8 @@ trait Trie[+B] {
 
   def apply(key: String) = get(key).get
 
+  def iterator: Iterator[(String, B)]
+
   def + [B1 >: B](kv: (String, B1)): Trie[B1]
 
   def updated [B1 >: B](key: String, value: B1) = this + (key, value)
@@ -73,17 +75,32 @@ case class NonEmptyTrie[+B](key: String, value: Option[B], children: Map[Char, T
       val newKey = k.substring(key.length)
       children(newKey.charAt(0)) + (newKey->v)
     }
-    case (k, _) if(key.contains(k)) => {
+    case (k, v) if(key.contains(k)) => {
       // TODO if > key call the children
       this
     }
+    case (k, v) => {
+
+      val t: Trie[B1] = new NonEmptyTrie[B1](k, Some(v), Map.empty[Char, Trie[B1]])
+      val cs: Map[Char, Trie[B1]] = Map(key(0)->this,k(0)->t)
+      new NonEmptyTrie[B1]("", None, cs)
+    }
+
   }
 
   def nearest(key: String) = this
 
-  def iterator = new Iterator[B] {
-    def hasNext = false
-    def next() = value.get
+  def iterator = new Iterator[(String, B)]() {
+
+    var current: Option[NonEmptyTrie[B]] = Some(NonEmptyTrie.this)
+
+    def hasNext = current.isDefined
+
+    def next() = current.map {
+      case NonEmptyTrie(k,Some(v),_)=>k->v
+    }.getOrElse(
+      throw new NoSuchElementException
+    )
   }
 
   def size = 0

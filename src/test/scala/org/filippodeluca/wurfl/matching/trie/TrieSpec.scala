@@ -1,6 +1,7 @@
 package org.filippodeluca.wurfl.matching.trie
 
 import org.specs2.mutable._
+import org.specs2.specification.Scope
 
 /**
  * 
@@ -8,12 +9,22 @@ import org.specs2.mutable._
  */
 class TrieSpec extends Specification {
 
-  "Trie apply" should {
+  "Trie" should {
     "create Trie" in {
       val trie = EmptyTrie + ("TEST"->5)
 
       trie.get("TEST") must beSome
     }
+    "add entry" in new Tries {
+
+      val nonEmpty = empty + ("FOO"->5) + ("BAR"->3)
+
+      nonEmpty.size must_==(2)
+    }
+  }
+
+  trait Tries extends Scope {
+    val empty = EmptyTrie
   }
 
 }
