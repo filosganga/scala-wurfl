@@ -31,8 +31,6 @@ class TrieSpec extends Specification {
 
       val nonEmpty = empty + ("FOO"->5) + ("FOL"->3)
 
-      println("Trie: " + nonEmpty)
-
       nonEmpty.size must_==(2)
     }
     "add more common root entry" in new Tries {
@@ -64,6 +62,17 @@ class TrieSpec extends Specification {
 
         trie("BAM") must be_==(1)
       }
+    }
+  }
+
+  "toMap" should {
+    "return same size" in {
+      val trie = EmptyTrie + ("FOO"->5) + ("FOL"->3) + ("FOLLA"->6) + ("BAM"->1) + ("BAO"->7)
+
+      println("Trie: " + trie)
+      println("Map: " + trie.toMap)
+
+      trie.toMap.size must be equalTo(trie.size)
     }
   }
 

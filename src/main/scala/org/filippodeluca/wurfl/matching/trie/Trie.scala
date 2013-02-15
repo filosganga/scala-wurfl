@@ -39,6 +39,8 @@ trait Trie[+B] {
   def updated [B1 >: B](key: String, value: B1) = this + (key, value)
 
   def size: Int
+
+  def toMap: Map[String, B]
 }
 
 object Trie {
@@ -67,6 +69,8 @@ object EmptyTrie extends Trie[Nothing] with Serializable {
   def - [B](kv: (String, B)) = this
 
   def nearest(key: String) = this
+
+  def toMap: Map[String, Nothing] = Map.empty[String, Nothing]
 }
 
 case class NonEmptyTrie[+B](key: String, value: Option[B], children: Map[Char, Trie[B]] = Map.empty) extends Trie[B] {
@@ -120,12 +124,18 @@ case class NonEmptyTrie[+B](key: String, value: Option[B], children: Map[Char, T
     a.zip(b).takeWhile(Function.tupled(_ == _)).map(_._1).mkString
   }
 
-  def - [B1 >: B](kv: (String, B1)): Trie[B1] = {
-    // TODO remove entry and maybe return Empty
-    throw new UnsupportedOperationException
-  }
+  def - [B1 >: B](kv: (String, B1)): Trie[B1] = ???
 
-  def nearest(key: String) = this
+  def nearest(k: String): Trie[B] = if (k == key) {
+    this
+  } else if(k.contains(key)) {
+    children.get(k(key.length)) match {
+      case Some(c: NonEmptyTrie[B]) => c.nearest(k.substring(key.length))
+      case _ => this
+    }
+  } else {
+    this
+  }
 
   def iterator = new Iterator[(String, B)]() {
 
@@ -142,6 +152,21 @@ case class NonEmptyTrie[+B](key: String, value: Option[B], children: Map[Char, T
 
   def size = children.values.foldLeft(value.map(x=>1).getOrElse(0)){
     (s, x) => s + x.size
+  }
+
+  def toMap: Map[String, B] = {
+    toMap("", Map.empty[String, B])
+  }
+
+  protected def toMap[B1 >: B](prefix: String, accumulator: Map[String, B1]): Map[String, B1] = {
+    val map = value match {
+      case Some(v) => accumulator + (prefix+key->v)
+      case _ => accumulator
+    }
+
+    children.values.foldLeft(map){
+      case (s, x: NonEmptyTrie[B1]) => x.toMap(prefix+key, s)
+    }
   }
 
   override def toString: String = {

@@ -61,7 +61,7 @@ class Matcher(repository: Repository) {
 
   private val nearestMatch: (String)=>Option[Device] = (userAgent: String) => {
 
-    val candidates = Seq.empty[(String,Device)] // userAgentPrefixTrie.nearest(userAgent).toSeq
+    val candidates = userAgentPrefixTrie.nearest(userAgent).toMap.toSeq
 
     if(candidates.nonEmpty){
       val matched = candidates.min(Ordering.by((e: (String, Device)) => ld(userAgent, e._1)))._2
