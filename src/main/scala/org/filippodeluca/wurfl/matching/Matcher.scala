@@ -25,6 +25,9 @@ import org.filippodeluca.wurfl.repository.Repository
 
 class Matcher(repository: Repository) {
 
+  /**
+   * Device-Stock-UA has been introduced by OperaMini: http://my.opera.com/ODIN/blog/2012/10/08/introducing-device-stock-ua
+   */
   protected def userAgentHeaders = Seq("X-OperaMini-Phone-UA", "X-Original-User-Agent", "X-Device-User-Agent", "Device-Stock-UA", "User-Agent")
 
   protected val normalizers: Iterable[Normalizer] = Seq(
