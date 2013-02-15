@@ -6,7 +6,7 @@ Exaples
 -------
 
 ### Basic
-    val wurfl = Wurfl("classpath:///root.xml").build()
+    val wurfl = Wurfl("classpath://root.xml").build()
     val device = wurfl.device(Headers.userAgent("Mozilla"))
 
     val xhtmlSupportLevel = device("xhtml_support_level")
@@ -18,16 +18,16 @@ Exaples
 
 ### Patching
 
-    val wurfl = Wurfl("classpath:///root.xml")
-      .withPatch("classpath:///patch_a.xml")
-      .withPatch("classpath:///patch_b.xml")
+    val wurfl = Wurfl("classpath://root.xml")
+      .withPatch("classpath://patch_a.xml")
+      .withPatch("classpath://patch_b.xml")
       .build()
 
-    val wurfl = Wurfl("classpath:///root.xml")
-      .withPatches("classpath:///patch_a.xml", "classpath:///patch_b.xml")
+    val wurfl = Wurfl("classpath://root.xml")
+      .withPatches("classpath://patch_a.xml", "classpath://patch_b.xml")
       .build()
 
-    val patched = wurfl.patch("classpath:///patch_one.xml")
+    val patched = wurfl.patch("classpath://patch_one.xml")
 Download
 --------
 scala-wurfl is available to the Sonatype OSS Maven repository:
