@@ -21,6 +21,7 @@ package org.filippodeluca.wurfl
 import matching.Matcher
 import repository.xml.XmlResource
 import repository.{Repository, InMemoryRepository, Resource}
+import com.typesafe.config.{ConfigFactory, Config}
 
 class Wurfl private(protected val repository: Repository, protected val eventListener: (Any, String) => Unit) {
 
@@ -52,7 +53,17 @@ object Wurfl {
     new Builder(main)
   }
 
+  def apply(main: String, patches: String*): Builder = {
+    apply(main).withPatches(patches.head, patches.tail:_*)
+  }
+
+  def apply(config: Config, main: String, patches: String*): Builder = {
+    apply(main).withConfig(config).withPatches(patches.head, patches.tail:_*)
+  }
+
   class Builder(private val main: String) {
+
+    private var config: Config = ConfigFactory.load()
 
     private var patches: Seq[String] = Seq.empty
 
@@ -70,6 +81,11 @@ object Wurfl {
 
     def withPatches(patch: String, others: String*): Builder = {
       patches = patches ++ (patch +: others)
+      this
+    }
+
+    def withConfig(cfg: Config): Builder = {
+      this.config = config
       this
     }
   }

@@ -34,6 +34,8 @@ trait Trie[+B] {
 
   def + [B1 >: B](kv: (String, B1)): Trie[B1]
 
+  def - [B1 >: B](kv: (String, B1)): Trie[B1]
+
   def updated [B1 >: B](key: String, value: B1) = this + (key, value)
 
   def size: Int
@@ -47,9 +49,11 @@ object EmptyTrie extends Trie[Nothing] with Serializable {
 
   def iterator: Iterator[(String, Nothing)] = Iterator.empty
 
-  def + [B1](kv: (String, B1)): Trie[B1] = kv match {
-    case (k,v) => new NonEmptyTrie(k, Some(v), Map.empty[Char, Trie[B1]])
+  def + [B](kv: (String, B)): Trie[B] = kv match {
+    case (k,v) => new NonEmptyTrie(k, Some(v), Map.empty[Char, Trie[B]])
   }
+
+  def - [B](kv: (String, B)) = this
 
   def nearest(key: String) = this
 }
@@ -58,11 +62,13 @@ case class NonEmptyTrie[+B](key: String, value: Option[B], children: Map[Char, T
 
   def get(k: String) = getTrie(k).flatMap(_.value)
 
-  private def getTrie(k: String) = if (k.equals(key)) {
+  private def getTrie(k: String): Option[NonEmptyTrie[B]] = if (k == key) {
     Some(this)
   } else if(k.contains(key)) {
-    // TODO call get recursively to the right child
-    None
+    children(k(key.length)) match {
+      case c: NonEmptyTrie[B] => c.getTrie(k.substring(key.length))
+      case _ => None
+    }
   } else {
     None
   }
@@ -73,19 +79,39 @@ case class NonEmptyTrie[+B](key: String, value: Option[B], children: Map[Char, T
     }
     case (k,v) if(k.contains(key)) => {
       val newKey = k.substring(key.length)
-      children(newKey.charAt(0)) + (newKey->v)
+      new NonEmptyTrie(key, value, children + (newKey(0)-> addToChildren(newKey, v)))
     }
     case (k, v) if(key.contains(k)) => {
-      // TODO if > key call the children
-      this
+      val newKey = key.substring(k.length)
+      new NonEmptyTrie[B1](k, Some(v), Map(newKey(0)->new NonEmptyTrie[B1](newKey, value, children)))
     }
     case (k, v) => {
-
-      val t: Trie[B1] = new NonEmptyTrie[B1](k, Some(v), Map.empty[Char, Trie[B1]])
-      val cs: Map[Char, Trie[B1]] = Map(key(0)->this,k(0)->t)
-      new NonEmptyTrie[B1]("", None, cs)
+      val newKey = longestCommonPart(k, key)
+      val k1 = key.substring(newKey.length)
+      val k2 = k.substring(newKey.length)
+      new NonEmptyTrie[B1](newKey, None, Map(
+        k1(0)->new NonEmptyTrie(k1, value, children),
+        k2(0)->new NonEmptyTrie(k2, Some(v), Map.empty[Char, Trie[B1]])
+      ))
     }
+  }
 
+  private def addToChildren[B1 >: B](k: String, v: B1): Trie[B1] = {
+    children.get(k(0)) match {
+      case Some(n) => n + (k->v)
+      case _ => new NonEmptyTrie[B1](k, Some(v), Map.empty[Char, Trie[B]])
+
+    }
+  }
+
+  // TODO need to find a faster implementation, maybe starting from back
+  private def longestCommonPart(a: String, b: String) = {
+    a.zip(b).takeWhile(Function.tupled(_ == _)).map(_._1).mkString
+  }
+
+  def - [B1 >: B](kv: (String, B1)): Trie[B1] = {
+    // TODO remove entry and maybe return Empty
+    throw new UnsupportedOperationException
   }
 
   def nearest(key: String) = this
@@ -103,5 +129,11 @@ case class NonEmptyTrie[+B](key: String, value: Option[B], children: Map[Char, T
     )
   }
 
-  def size = 0
+  def size = children.values.foldLeft(value.map(x=>1).getOrElse(0)){
+    (s, x) => s + x.size
+  }
+
+  override def toString: String = {
+    "NonEmpty[" + key + "->" + value + ", " + children.values.mkString(",") + "]"
+  }
 }
