@@ -58,6 +58,13 @@ class InMemoryRepository(entries: Traversable[DeviceEntry], patches: Traversable
       private def ancestor: Option[Device] = {
         entry.fallBackId.flatMap(get(_))
       }
+
+      override def equals(obj: Any): Boolean = obj match {
+        case that: Device => id == that.id
+        case _ => false
+      }
+
+      override def toString: String = "Device[id: " + id + ", userAgent: " + userAgent + "]"
     }
   }
 

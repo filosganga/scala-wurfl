@@ -72,21 +72,21 @@ class Matcher(repository: Repository) {
     }
   }
 
-  private def init(devices: Traversable[Device]): Trie[Device] = EmptyTrie
+  private def init(devices: Traversable[Device]): Trie[Device] = {
 
-//  (Trie.empty[String, Device] /: devices){(s,x)=>
-//    x.userAgent match {
-//      case Some("root") => s
-//      case Some("") => s
-//      case Some(userAgent) => {
-//        val normalized = (userAgent /: normalizers){
-//          (ua,n)=>n(ua)
-//        }
-//        s.updated(normalized, x)
-//      }
-//      case _ => s
-//    }
-//  }
+    devices.foldLeft(Trie.empty[Device]){(s,x)=>
+      x.userAgent match {
+        case None => s
+        case Some("root") => s
+        case Some("") => s
+        case Some(userAgent) => {
+          s + (normalize(userAgent)->x)
+        }
+      }
+    }
+  }
+
+  private def normalize(s: String) = normalizers.foldLeft(s)((a,b)=>b(a))
 }
 
 

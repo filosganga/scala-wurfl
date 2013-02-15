@@ -41,6 +41,17 @@ trait Trie[+B] {
   def size: Int
 }
 
+object Trie {
+
+  def empty[B]: Trie[B] = EmptyTrie
+
+  def apply[B](kvs: (String, B)*): Trie[B] = {
+    kvs.foldLeft[Trie[B]](empty){(s,x)=>
+      s + (x._1->x._2)
+    }
+  }
+}
+
 object EmptyTrie extends Trie[Nothing] with Serializable {
 
   def size: Int = 0
@@ -65,8 +76,8 @@ case class NonEmptyTrie[+B](key: String, value: Option[B], children: Map[Char, T
   private def getTrie(k: String): Option[NonEmptyTrie[B]] = if (k == key) {
     Some(this)
   } else if(k.contains(key)) {
-    children(k(key.length)) match {
-      case c: NonEmptyTrie[B] => c.getTrie(k.substring(key.length))
+    children.get(k(key.length)) match {
+      case Some(c: NonEmptyTrie[B]) => c.getTrie(k.substring(key.length))
       case _ => None
     }
   } else {
