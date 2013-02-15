@@ -19,17 +19,21 @@
 package org.filippodeluca.wurfl.repository.xml
 
 import org.specs2.mutable._
+import java.io.FileNotFoundException
 
 class XmlResourceSpec extends Specification {
 
   "XmlResource" should {
     "parse" in {
       "return no empty data" in {
-        new XmlResource("classpath:///root.xml").devices.isEmpty must beFalse
+        new XmlResource("classpath:/root.xml").devices.isEmpty must beFalse
       }
       "return one root at least" in {
-        new XmlResource("classpath:///root.xml").devices.count(_.isRoot) must greaterThan(0)
+        new XmlResource("classpath:/root.xml").devices.count(_.isRoot) must greaterThan(0)
       }
+    }
+    "throw FileNotFoundException" in {
+      new XmlResource("classpath:notExistent.xml").devices must throwA[FileNotFoundException]
     }
   }
 }

@@ -20,7 +20,7 @@ package org.filippodeluca.wurfl.repository.xml
 
 import scala.collection.mutable
 import java.net.URI
-import java.io.InputStream
+import java.io.{FileNotFoundException, InputStream}
 
 import org.xml.sax.helpers.XMLReaderFactory
 import org.xml.sax.InputSource
@@ -32,34 +32,31 @@ class XmlResource(val uri: URI) extends Resource {
 
   def this(path: String) = this (URI.create(path))
 
-  def devices: Traversable[DeviceEntry] = {
+  def devices: Traversable[DeviceEntry] = openInputStream(uri).map{input=>
 
     val entries = mutable.Map.empty[String, DeviceEntry]
 
     val xmlReader = XMLReaderFactory.createXMLReader()
     xmlReader.setContentHandler(new WurflSaxHandler(entries))
 
-    val inputStream = openInputStream(uri)
-
-    using(inputStream) {
-      val inputSource = new InputSource(inputStream)
+    using(input) {
+      val inputSource = new InputSource(input)
       inputSource.setEncoding("UTF-8")
 
       xmlReader.parse(inputSource)
     }
-
     entries.values
-  }
+  }.getOrElse(throw new FileNotFoundException(uri.toString))
 
 
-  private def openInputStream(uri: URI): InputStream = uri.getScheme match {
-    case "classpath" => getClass.getResourceAsStream(uri.getPath)
+
+  private def openInputStream(uri: URI): Option[InputStream] = uri.getScheme match {
+    case "classpath" => Option(uri.getPath).map(getClass.getResourceAsStream(_))
     // TODO manage file zip gzip etc
-    case _ => uri.toURL.openStream()
-    //case _ => throw new RuntimeException("URI: " + uri + " not found")
+    case _ =>  Option(uri.toURL).map(_.openStream())
   }
 
-  private def using(closable: {def close(): Unit})(body: => Unit) {
+  private def using(closable: {def close()})(body: => Unit) {
 
     try {
       body

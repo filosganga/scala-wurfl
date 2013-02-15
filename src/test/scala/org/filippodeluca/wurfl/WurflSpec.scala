@@ -32,26 +32,26 @@ class WurflSpec extends Specification {
   "Wurfl" should {
     "create" in {
       "without patch" in {
-        Wurfl("classpath:///root.xml").build() must be_!=(null)
+        Wurfl("classpath:/root.xml").build() must be_!=(null)
       }
       "with one patch" in {
-        Wurfl("classpath:///root.xml").withPatch("classpath:///add_device_patch.xml").build() must be_!=(null)
+        Wurfl("classpath:/root.xml").withPatch("classpath:/add_device_patch.xml").build() must be_!=(null)
       }
       "with more patches" in {
-        Wurfl("classpath:///root.xml").withPatches("classpath:///add_device_patch.xml", "classpath:///add_group_patch.xml").build() must be_!=(null)
+        Wurfl("classpath:/root.xml").withPatches("classpath:/add_device_patch.xml", "classpath:/add_group_patch.xml").build() must be_!=(null)
       }
     }
     "match device" in {
       "perfect match" in {
-        val wurfl = Wurfl("classpath:///root.xml").build()
+        val wurfl = Wurfl("classpath:/root.xml").build()
         wurfl.device(Headers("user-agent"->List("DEVICE A"))) must not(beNull)
       }
       "nearest match" in {
-        val wurfl = Wurfl("classpath:///root.xml").build()
+        val wurfl = Wurfl("classpath:/root.xml").build()
         wurfl.device(Headers("user-agent"->List("DEVICE"))) must not(beNull)
       }
       "real userAgent" in {
-        val wurfl = Wurfl("classpath:///wurfl-regression.xml").build()
+        val wurfl = Wurfl("classpath:/wurfl-regression.xml").build()
 
         val start = System.currentTimeMillis()
 
@@ -70,7 +70,6 @@ class WurflSpec extends Specification {
         println("Test effective duration: " + duration + "ms")
 
 
-        // 82 are the acceptable errors with the given file
         errors.size must beLessThanOrEqualTo(0)
       }
     }
