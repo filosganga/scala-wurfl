@@ -1,9 +1,12 @@
 Unofficial WURFL Scala API
 ==========================
-It is based on a customized Patricia Trie implementation
+This is an unofficial [WURFL](http://wurfl.sourceforge.net/) Scala API. It is based on a custom Patricia Trie
+implementation that is fast but not exact as the official APIs are.
 
-Exaples
--------
+It is available for Scala 2.8.2, 2.9.2, 2.10.0.
+
+Examples
+--------
 
 ### Basic
     val wurfl = Wurfl("classpath:/root.xml").build()
