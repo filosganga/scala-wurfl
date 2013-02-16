@@ -5,7 +5,7 @@ import java.net.URL
 object ScalaWurfl extends Build {
    
    val project = (Project("scala-wurfl", file(".")) settings(
-     organization := "org.filippodeluca",
+     organization := "org.filippodeluca.wurfl",
      name := "scala-wurfl",
      version := "1.1-SNAPSHOT",
      scalaVersion := "2.10.0",
