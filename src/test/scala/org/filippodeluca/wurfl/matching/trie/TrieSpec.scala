@@ -66,13 +66,35 @@ class TrieSpec extends Specification {
   }
 
   "toMap" should {
-    "return same size" in {
+    "preserve entries" in {
       val trie = EmptyTrie + ("FOO"->5) + ("FOL"->3) + ("FOLLA"->6) + ("BAM"->1) + ("BAO"->7)
 
-      println("Trie: " + trie)
-      println("Map: " + trie.toMap)
+      val map = trie.toMap
 
-      trie.toMap.size must be equalTo(trie.size)
+      map must havePairs("FOO"->5, "FOL"->3, "FOLLA"->6, "BAM"->1, "BAO"->7)
+    }
+    "turn back to Trie" in {
+      val trie = EmptyTrie + ("FOO"->5) + ("FOL"->3) + ("FOLLA"->6) + ("BAM"->1) + ("BAO"->7)
+
+      Trie(trie.toMap.toSeq: _*) must be_==(trie)
+    }
+    "have the same size" in {
+      val trie = EmptyTrie + ("FOO"->5) + ("FOL"->3) + ("FOLLA"->6) + ("BAM"->1) + ("BAO"->7)
+
+      trie.toMap must haveSize(5)
+    }
+  }
+
+  "getNearest" should {
+    "return the longest common node" in {
+      val trie = Trie("FOO"->5, "FOL"->3, "FOLLA"->6, "BAMBOO"->8)
+
+      trie.nearest("FOLLETTO") must be_==(Trie("FOLLA"->6))
+    }
+    "return the longest common prefix node" in {
+      val trie = Trie("FOO"->5, "FOLLIA"->3, "FOLLA"->6, "BAMBOO"->8)
+
+      trie.nearest("FOLLETTO") must be_==(Trie("FOLLIA"->3, "FOLLA"->6))
     }
   }
 

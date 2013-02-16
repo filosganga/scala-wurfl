@@ -126,16 +126,22 @@ case class NonEmptyTrie[+B](key: String, value: Option[B], children: Map[Char, T
 
   def - [B1 >: B](kv: (String, B1)): Trie[B1] = ???
 
-  def nearest(k: String): Trie[B] = if (k == key) {
-    this
+  def nearest(k: String): Trie[B] = nearest(k, "")
+
+  // TODO Refactor it
+  protected def nearest(k: String, prefix: String): Trie[B] = if (k == key) {
+    new NonEmptyTrie(prefix + key, value, children)
   } else if(k.contains(key)) {
     children.get(k(key.length)) match {
-      case Some(c: NonEmptyTrie[B]) => c.nearest(k.substring(key.length))
-      case _ => this
+      case Some(c: NonEmptyTrie[B]) => {
+        c.nearest(k.substring(key.length), prefix + key)
+      }
+      case _ => new NonEmptyTrie(prefix + key, value, children)
     }
   } else {
-    this
+    new NonEmptyTrie(prefix + key, value, children)
   }
+
 
   def iterator = new Iterator[(String, B)]() {
 
@@ -167,6 +173,12 @@ case class NonEmptyTrie[+B](key: String, value: Option[B], children: Map[Char, T
     children.values.foldLeft(map){
       case (s, x: NonEmptyTrie[B1]) => x.toMap(prefix+key, s)
     }
+  }
+
+
+  override def equals(obj: Any): Boolean = obj match {
+    case that: NonEmptyTrie[B] => that.toMap == toMap
+    case _ => false
   }
 
   override def toString: String = {
