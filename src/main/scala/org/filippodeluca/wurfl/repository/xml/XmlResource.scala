@@ -19,20 +19,21 @@
 package org.filippodeluca.wurfl.repository.xml
 
 import scala.collection.mutable
-import java.net.URI
+import java.net.{URLConnection, URL, URI}
 import java.io.{FileNotFoundException, InputStream}
 
 import org.xml.sax.helpers.XMLReaderFactory
 import org.xml.sax.InputSource
 
 import org.filippodeluca.wurfl.repository.{DeviceEntry, Resource}
+import java.util.zip.{ZipInputStream, ZipFile, GZIPInputStream}
 
 
 class XmlResource(val uri: URI) extends Resource {
 
   def this(path: String) = this (URI.create(path))
 
-  def devices: Traversable[DeviceEntry] = openInputStream(uri).map{input=>
+  def devices: Traversable[DeviceEntry] = openInputStream(uri).fold(e=>throw new FileNotFoundException(uri.toString), input=> {
 
     val entries = mutable.Map.empty[String, DeviceEntry]
 
@@ -46,14 +47,30 @@ class XmlResource(val uri: URI) extends Resource {
       xmlReader.parse(inputSource)
     }
     entries.values
-  }.getOrElse(throw new FileNotFoundException(uri.toString))
+  })
 
+  private def openInputStream(uri: URI): Either[Exception, InputStream] = {
 
+    try {
+    val connection = urlFor(uri).openConnection()
 
-  private def openInputStream(uri: URI): Option[InputStream] = uri.getScheme match {
-    case "classpath" => Option(uri.getPath).map(getClass.getResourceAsStream(_))
-    // TODO manage file zip gzip etc
-    case _ =>  Option(uri.toURL).map(_.openStream())
+    uri.getPath.substring(uri.getPath.lastIndexOf(".")) match {
+      case ".gz" => {
+        val zip = new ZipInputStream(connection.getInputStream)
+        zip.getNextEntry
+        Right(zip)
+      }
+      case ".zip" => Right(new GZIPInputStream(connection.getInputStream))
+      case _ => Right(connection.getInputStream)
+    }
+    } catch {
+      case e: Exception => Left(e)
+    }
+  }
+
+  private def urlFor(uri: URI): URL = uri.getScheme match {
+    case "classpath" => getClass.getResource(uri.getPath)
+    case _ =>  uri.toURL
   }
 
   private def using(closable: {def close()})(body: => Unit) {
@@ -70,6 +87,11 @@ class XmlResource(val uri: URI) extends Resource {
       }
     }
   }
+}
 
+object XmlResource {
 
+  def apply(path: String) = new XmlResource(path)
+
+  def apply(uri: URI) = new XmlResource(uri)
 }

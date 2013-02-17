@@ -18,76 +18,87 @@
 
 package org.filippodeluca.wurfl
 
-import matching.Matcher
-import repository.xml.XmlResource
-import repository.{Repository, InMemoryRepository, Resource}
-import com.typesafe.config.{ConfigFactory, Config}
+import matching.trie.Trie
+import matching.Strings.ld
+import repository.{Repository, Resource}
 
-class Wurfl private(protected val repository: Repository, protected val eventListener: (Any, String) => Unit) {
+class Wurfl(
+             protected val repository: Repository,
+             protected val normalizers: Seq[String => String],
+             protected val eventListener: (Any, String) => Unit) {
 
-  private val matcher = new Matcher(repository)
+  /**
+   * Device-Stock-UA has been introduced by OperaMini: http://my.opera.com/ODIN/blog/2012/10/08/introducing-device-stock-ua
+   */
+  protected def userAgentHeaders = Seq("X-OperaMini-Phone-UA", "X-Original-User-Agent", "X-Device-User-Agent", "Device-Stock-UA", "User-Agent")
 
-  def patch(p: String): Wurfl = {
-    patch(new XmlResource(p))
+  protected val userAgentPrefixTrie: Trie[Device] = init(repository)
+
+  def device(headers: Headers): Device = {
+    // TODO find generic
+    userAgentMatch(headers).getOrElse(repository.roots.head)
   }
 
-  def patch(p: String, ps: String*): Wurfl = {
-    patch(new XmlResource(p), ps.map(new XmlResource(_)):_*)
+  private val userAgentMatch: (Headers) => Option[Device] = (headers: Headers) => userAgent(headers) match {
+    case Some(userAgent) => {
+      val normalized = (userAgent /: normalizers) {
+        (ua, n) => n(ua)
+      }
+      // Chain of responsibility
+      Seq(perfectMatch, nearestMatch).view.map(x => x(normalized)).collectFirst {
+        case Some(x) => x
+      }
+    }
+    case None => None
   }
 
-  private def patch(p: Resource): Wurfl = {
-    patch(p, Seq.empty[Resource]:_*)
+  private def userAgent(headers: Headers) = {
+    userAgentHeaders.map(headers.get(_)).collectFirst {
+      case xs if !xs.isEmpty => xs.head
+    }
   }
+
+  private val perfectMatch: (String) => Option[Device] = (userAgent: String) => userAgentPrefixTrie.get(userAgent)
+
+  private val nearestMatch: (String) => Option[Device] = (userAgent: String) => {
+
+    val candidates = userAgentPrefixTrie.nearest(userAgent).toMap.toSeq
+
+    if (candidates.nonEmpty) {
+      val matched = candidates.min(Ordering.by((e: (String, Device)) => ld(userAgent, e._1)))._2
+      Some(matched)
+    }
+    else {
+      None
+    }
+  }
+
+  private def init(devices: Traversable[Device]): Trie[Device] = {
+
+    (Trie.empty[Device] /: devices) {
+      (s, x) =>
+        x.userAgent match {
+          case Some(userAgent) => {
+            s + (normalize(userAgent) -> x)
+          }
+          case _ => s
+        }
+    }
+  }
+
+  private def normalize(s: String) = (s /: normalizers)((a, b) => b(a))
+
 
   private def patch(p: Resource, ps: Resource*): Wurfl = {
-    val patchedRepo = repository.patch((p +: ps).map(_.devices):_*)
-    new Wurfl(patchedRepo, eventListener)
+    val patchedRepo = repository.patch((p +: ps).map(_.devices): _*)
+    new Wurfl(patchedRepo, normalizers, eventListener)
   }
 
-  def device(headers: Headers): Device = matcher.device(headers)
 }
 
 object Wurfl {
 
-  def apply(main: String): Builder = {
-    new Builder(main)
-  }
+  def apply() = new WurflBuilder().build()
 
-  def apply(main: String, patches: String*): Builder = {
-    apply(main).withPatches(patches.head, patches.tail:_*)
-  }
-
-  def apply(config: Config, main: String, patches: String*): Builder = {
-    apply(main).withConfig(config).withPatches(patches.head, patches.tail:_*)
-  }
-
-  class Builder(private val main: String) {
-
-    private var config: Config = ConfigFactory.load()
-
-    private var patches: Seq[String] = Seq.empty
-
-    private var eventListener: (Any, String) => Unit = (src: Any, event: String)=>Unit
-
-    def build(): Wurfl = {
-      val repository = new InMemoryRepository(new XmlResource(main).devices, patches.map(new XmlResource(_)).map(_.devices):_*)
-      new Wurfl(repository, eventListener)
-    }
-
-    def withPatch(patch: String): Builder = {
-      patches = patches :+ patch
-      this
-    }
-
-    def withPatches(patch: String, others: String*): Builder = {
-      patches = patches ++ (patch +: others)
-      this
-    }
-
-    def withConfig(cfg: Config): Builder = {
-      this.config = config
-      this
-    }
-  }
 }
 
