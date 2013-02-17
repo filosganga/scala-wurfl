@@ -5,6 +5,8 @@ implementation that is fast but not exact as the official APIs are.
 
 It is available for Scala 2.8.2, 2.9.2, 2.10.0.
 
+[![The Build Status](https://travis-ci.org/filosganga/scala-wurfl.png?branch=master)](https://travis-ci.org/filosganga/scala-wurfl)
+
 Examples
 --------
 
