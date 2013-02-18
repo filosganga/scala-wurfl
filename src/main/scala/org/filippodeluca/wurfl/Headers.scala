@@ -63,8 +63,8 @@ class Headers(private val delegate : Map[String, Seq[String]]) {
 
 object Headers {
 
-  def apply(xs: scala.Tuple2[String, Seq[String]]*) = new Headers(xs:_*)
+  def apply(xs: (String, Seq[String])*) = new Headers(xs:_*)
 
-  def userAgent(ua: String) = new Headers("User-Agent"->List(ua))
+  def userAgent(ua: String) = new Headers("User-Agent"->Seq(ua))
 
 }

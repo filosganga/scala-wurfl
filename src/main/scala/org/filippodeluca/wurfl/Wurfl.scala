@@ -23,14 +23,10 @@ import matching.Strings.ld
 import repository.{Repository, Resource}
 
 class Wurfl(
-             protected val repository: Repository,
-             protected val normalizers: Seq[String => String],
-             protected val eventListener: (Any, String) => Unit) {
-
-  /**
-   * Device-Stock-UA has been introduced by OperaMini: http://my.opera.com/ODIN/blog/2012/10/08/introducing-device-stock-ua
-   */
-  protected def userAgentHeaders = Seq("X-OperaMini-Phone-UA", "X-Original-User-Agent", "X-Device-User-Agent", "Device-Stock-UA", "User-Agent")
+             repository: Repository,
+             userAgentResolver: Headers=>Option[String],
+             normalizers: Seq[String => String],
+             eventListener: (Any, String) => Unit) {
 
   protected val userAgentPrefixTrie: Trie[Device] = init(repository)
 
@@ -39,7 +35,7 @@ class Wurfl(
     userAgentMatch(headers).getOrElse(repository.roots.head)
   }
 
-  private val userAgentMatch: (Headers) => Option[Device] = (headers: Headers) => userAgent(headers) match {
+  private val userAgentMatch: (Headers) => Option[Device] = (headers: Headers) => userAgentResolver(headers) match {
     case Some(userAgent) => {
       val normalized = (userAgent /: normalizers) {
         (ua, n) => n(ua)
@@ -52,13 +48,9 @@ class Wurfl(
     case None => None
   }
 
-  private def userAgent(headers: Headers) = {
-    userAgentHeaders.map(headers.get(_)).collectFirst {
-      case xs if !xs.isEmpty => xs.head
-    }
+  private val perfectMatch: (String) => Option[Device] = (userAgent: String) => {
+    userAgentPrefixTrie.get(userAgent)
   }
-
-  private val perfectMatch: (String) => Option[Device] = (userAgent: String) => userAgentPrefixTrie.get(userAgent)
 
   private val nearestMatch: (String) => Option[Device] = (userAgent: String) => {
 
@@ -88,10 +80,9 @@ class Wurfl(
 
   private def normalize(s: String) = (s /: normalizers)((a, b) => b(a))
 
-
   private def patch(p: Resource, ps: Resource*): Wurfl = {
     val patchedRepo = repository.patch((p +: ps).map(_.devices): _*)
-    new Wurfl(patchedRepo, normalizers, eventListener)
+    new Wurfl(patchedRepo, userAgentResolver, normalizers, eventListener)
   }
 
 }
