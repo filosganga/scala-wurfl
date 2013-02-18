@@ -6,21 +6,23 @@ import repository.xml.XmlResource
 
 import scala.collection.JavaConversions._
 
+
+
 /**
  * 
  * @author Filippo De Luca
  */
-class WurflBuilder(cfg: Config = ConfigFactory.load()) {
+class WurflBuilder(cfg: Config) {
   import WurflBuilder._
 
   private val config = cfg.withFallback(ConfigFactory.defaultReference()).getConfig("wurfl")
 
-  private val main: String = config.getString("main")
-  private val patches: Seq[String] = config.getStringList("patches")
+  protected var main: String = config.getString("main")
+  protected var patches: Seq[String] = config.getStringList("patches")
 
-  private val userAgentResolver: (Headers) => Option[String] = configureUserAgentResolver(config)
+  protected var userAgentResolver: (Headers) => Option[String] = configureUserAgentResolver(config)
 
-  private val normalizers: Seq[String=>String] = configureNormalizers(config)
+  protected var normalizers: Seq[String=>String] = configureNormalizers(config)
 
   def build(): Wurfl = {
 
@@ -31,6 +33,37 @@ class WurflBuilder(cfg: Config = ConfigFactory.load()) {
 
     new Wurfl(repository, userAgentResolver, normalizers)
   }
+
+  def withMain(x: String) = {
+    this.main = x
+    this
+  }
+
+  def withPatches(xs: String*) = {
+    this.patches = this.patches ++ xs
+    this
+  }
+
+  def withoutPatches = {
+    this.patches = Seq.empty
+    this
+  }
+
+  def withUserAgentResolver(x: Headers=>Option[String]) = {
+    this.userAgentResolver = x
+    this
+  }
+
+  def withNormalizers(xs: Seq[String=>String]) = {
+    this.normalizers = this.normalizers ++ xs
+    this
+  }
+
+  def withoutNormalizers = {
+    this.normalizers = Seq.empty
+    this
+  }
+
 }
 
 object WurflBuilder {

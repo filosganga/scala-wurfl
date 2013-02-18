@@ -21,6 +21,7 @@ package org.filippodeluca.wurfl
 import matching.trie.Trie
 import matching.Strings.ld
 import repository.{Repository, Resource}
+import com.typesafe.config.{ConfigFactory, Config}
 
 class Wurfl(
              repository: Repository,
@@ -88,7 +89,9 @@ class Wurfl(
 
 object Wurfl {
 
-  def apply() = new WurflBuilder().build()
+  def apply(config: Config = ConfigFactory.load()) = new WurflBuilder(config)
+
+  def apply(main: String) = new WurflBuilder(ConfigFactory.load()).withMain(main)
 
 }
 
