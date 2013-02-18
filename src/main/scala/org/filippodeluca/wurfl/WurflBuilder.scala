@@ -22,13 +22,14 @@ class WurflBuilder(cfg: Config = ConfigFactory.load()) {
 
   private val normalizers: Seq[String=>String] = configureNormalizers(config)
 
-  private val eventListener: (Any, String) => Unit = (src: Any, event: String)=>Unit
-
   def build(): Wurfl = {
 
-    val repository = new InMemoryRepository(new XmlResource(main).devices, patches.map(new XmlResource(_)).map(_.devices):_*)
+    val repository = new InMemoryRepository(
+      new XmlResource(main).devices,
+      patches.map(new XmlResource(_)).map(_.devices):_*
+    )
 
-    new Wurfl(repository, userAgentResolver, normalizers, eventListener)
+    new Wurfl(repository, userAgentResolver, normalizers)
   }
 }
 

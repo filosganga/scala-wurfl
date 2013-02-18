@@ -25,8 +25,7 @@ import repository.{Repository, Resource}
 class Wurfl(
              repository: Repository,
              userAgentResolver: Headers=>Option[String],
-             normalizers: Seq[String => String],
-             eventListener: (Any, String) => Unit) {
+             normalizers: Seq[String => String]) {
 
   protected val userAgentPrefixTrie: Trie[Device] = init(repository)
 
@@ -82,7 +81,7 @@ class Wurfl(
 
   private def patch(p: Resource, ps: Resource*): Wurfl = {
     val patchedRepo = repository.patch((p +: ps).map(_.devices): _*)
-    new Wurfl(patchedRepo, userAgentResolver, normalizers, eventListener)
+    new Wurfl(patchedRepo, userAgentResolver, normalizers)
   }
 
 }
