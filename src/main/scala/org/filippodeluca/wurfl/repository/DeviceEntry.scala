@@ -24,5 +24,6 @@ package org.filippodeluca.wurfl.repository
  * @author Filippo De Luca
  */
 case class DeviceEntry(id: String, userAgent: Option[String] = None, fallBackId: Option[String] = None, capabilities: Map[String, String] = Map.empty){
+
   def isRoot = fallBackId.isEmpty
 }

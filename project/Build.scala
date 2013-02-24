@@ -57,6 +57,7 @@ object ScalaWurfl extends Build {
    
    def dependencies = Seq(
      "com.typesafe" % "config" % "1.0.0",
+     "com.jsuereth" %% "scala-arm" % "1.3",
 
      "org.specs2" %% "specs2" % "1.13" % "test",
      "org.mockito" % "mockito-all" % "1.9.0" % "test"

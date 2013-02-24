@@ -28,6 +28,8 @@ import org.xml.sax.InputSource
 import org.filippodeluca.wurfl.repository.{DeviceEntry, Resource}
 import java.util.zip.{ZipInputStream, ZipFile, GZIPInputStream}
 
+import resource._
+
 
 class XmlResource(val uri: URI) extends Resource {
 
@@ -40,13 +42,13 @@ class XmlResource(val uri: URI) extends Resource {
     val xmlReader = XMLReaderFactory.createXMLReader()
     xmlReader.setContentHandler(new WurflSaxHandler(entries))
 
-    using(input) {
+    managed(input).acquireAndGet{x=>
       val inputSource = new InputSource(input)
       inputSource.setEncoding("UTF-8")
 
       xmlReader.parse(inputSource)
+      entries.values
     }
-    entries.values
   })
 
   private def openInputStream(uri: URI): Either[Exception, InputStream] = {
