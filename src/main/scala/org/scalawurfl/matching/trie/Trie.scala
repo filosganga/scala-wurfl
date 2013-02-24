@@ -22,7 +22,7 @@ import collection.immutable.Map
 import scala.Iterator
 import collection.generic.{CanBuildFrom, ImmutableMapFactory}
 
-trait Trie[+B] {
+trait Trie[+B] extends Traversable[(String, B)] {
 
   def nearest(key: String): Trie[B]
 
@@ -30,17 +30,12 @@ trait Trie[+B] {
 
   def apply(key: String) = get(key).get
 
-  def iterator: Iterator[(String, B)]
-
   def + [B1 >: B](kv: (String, B1)): Trie[B1]
 
   def - [B1 >: B](kv: (String, B1)): Trie[B1]
 
   def updated [B1 >: B](key: String, value: B1) = this + (key, value)
 
-  def size: Int
-
-  def toMap: Map[String, B]
 }
 
 object Trie {
@@ -56,11 +51,7 @@ object Trie {
 
 object EmptyTrie extends Trie[Nothing] with Serializable {
 
-  def size: Int = 0
-
   def get(key: String): Option[Nothing] = None
-
-  def iterator: Iterator[(String, Nothing)] = Iterator.empty
 
   def + [B](kv: (String, B)): Trie[B] = kv match {
     case (k,v) => new NonEmptyTrie(k, Some(v), Map.empty[Char, Trie[B]])
@@ -70,7 +61,11 @@ object EmptyTrie extends Trie[Nothing] with Serializable {
 
   def nearest(key: String) = this
 
-  def toMap: Map[String, Nothing] = Map.empty[String, Nothing]
+  override def size = 0
+
+  def foreach[U](f: ((String, Nothing)) => U) {
+    // Empty
+  }
 }
 
 case class NonEmptyTrie[+B](key: String, value: Option[B], children: Map[Char, Trie[B]] = Map.empty) extends Trie[B] {
@@ -142,46 +137,22 @@ case class NonEmptyTrie[+B](key: String, value: Option[B], children: Map[Char, T
     new NonEmptyTrie(prefix + key, value, children)
   }
 
+  def foreach[U](f: ((String, B)) => U) {
 
-  def iterator = new Iterator[(String, B)]() {
+    // Only if the value is present
+    value.foreach(v=> f(key->v))
 
-    var current: Option[NonEmptyTrie[B]] = Some(NonEmptyTrie.this)
-
-    def hasNext = current.isDefined
-
-    def next() = current.map {
-      case NonEmptyTrie(k,Some(v),_)=>k->v
-    }.getOrElse(
-      throw new NoSuchElementException
-    )
-  }
-
-  def size = children.values.foldLeft(value.map(x=>1).getOrElse(0)){
-    (s, x) => s + x.size
-  }
-
-  def toMap: Map[String, B] = {
-    toMap("", Map.empty[String, B])
-  }
-
-  protected def toMap[B1 >: B](prefix: String, accumulator: Map[String, B1]): Map[String, B1] = {
-    val map = value match {
-      case Some(v) => accumulator + (prefix+key->v)
-      case _ => accumulator
-    }
-
-    children.values.foldLeft(map){
-      case (s, x: NonEmptyTrie[B1]) => x.toMap(prefix+key, s)
+    children.foreach {
+      case (_, c) => c.foreach(f)
     }
   }
-
 
   override def equals(obj: Any): Boolean = obj match {
     case that: NonEmptyTrie[B] => that.toMap == toMap
     case _ => false
   }
 
-  override def toString: String = {
+  override def toString(): String = {
     "NonEmpty[" + key + "->" + value + ", " + children.values.mkString(",") + "]"
   }
 }

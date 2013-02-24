@@ -55,7 +55,7 @@ class Wurfl(
 
   private val nearestMatch: (String) => Option[Device] = (userAgent: String) => {
 
-    val candidates = userAgentPrefixTrie.nearest(userAgent).toMap.toSeq
+    val candidates = userAgentPrefixTrie.nearest(userAgent)
 
     if (candidates.nonEmpty) {
       val matched = candidates.min(Ordering.by((e: (String, Device)) => ld(userAgent, e._1)))._2
@@ -80,11 +80,6 @@ class Wurfl(
   }
 
   private def normalize(s: String) = (s /: normalizers)((a, b) => b(a))
-
-  private def patch(p: Resource, ps: Resource*): Wurfl = {
-    val patchedRepo = repository.patch((p +: ps).map(_.devices): _*)
-    new Wurfl(patchedRepo, userAgentResolver, normalizers)
-  }
 
 }
 

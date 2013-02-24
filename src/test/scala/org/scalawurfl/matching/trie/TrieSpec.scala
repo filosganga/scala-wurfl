@@ -2,7 +2,6 @@ package org.scalawurfl.matching.trie
 
 import org.specs2.mutable._
 import org.specs2.specification.Scope
-import org.scalawurfl.matching.trie.{Trie, EmptyTrie}
 
 /**
  * 
