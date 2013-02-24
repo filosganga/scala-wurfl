@@ -5,9 +5,9 @@ import java.net.URL
 object ScalaWurfl extends Build {
    
    val project = (Project("scala-wurfl", file(".")) settings(
-     organization := "org.filippodeluca.wurfl",
+     organization := "org.scala-wurfl",
      name := "scala-wurfl",
-     version := "1.1-SNAPSHOT",
+     version := "1.0-SNAPSHOT",
      scalaVersion := "2.10.0",
      crossScalaVersions := Seq("2.8.2", "2.9.2", "2.10.0"),
      licenses := Seq("Apache License, Version 2.0"->new URL("http://www.apache.org/licenses/LICENSE-2.0.html")),
@@ -59,7 +59,7 @@ object ScalaWurfl extends Build {
      "com.typesafe" % "config" % "1.0.0",
      "com.jsuereth" %% "scala-arm" % "1.3",
 
-     "org.specs2" %% "specs2" % "1.13" % "test",
+     "org.specs2" %% "specs2" % "1.14" % "test",
      "org.mockito" % "mockito-all" % "1.9.0" % "test"
    )
    

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Copyright 2012.
-  ~   Filippo De Luca <me@filippodeluca.com>
+  ~   Filippo De Luca <me@scalawurfl.com>
   ~   Fantayeneh Asres Gizaw <fantayeneh@gmail.com>
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +27,7 @@
         <level value="INFO" />
         <appender-ref ref="STDOUT" />
     </root>
-    <logger name="org.filippodeluca.wurfl">
+    <logger name="org.scalawurfl">
         <level value="DEBUG" />
     </logger>
 </configuration>
