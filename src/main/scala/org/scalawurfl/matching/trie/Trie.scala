@@ -138,12 +138,17 @@ case class NonEmptyTrie[+B](key: String, value: Option[B], children: Map[Char, T
   }
 
   def foreach[U](f: ((String, B)) => U) {
+    foreach(f, "")
+  }
 
+  private def foreach[U](f: ((String, B)) => U, keyPrefix: String) {
+
+    val fullKey = keyPrefix + key
     // Only if the value is present
-    value.foreach(v=> f(key->v))
+    value.foreach(v=> f(fullKey->v))
 
     children.foreach {
-      case (_, c) => c.foreach(f)
+      case (_, c: NonEmptyTrie[B]) => c.foreach(f, fullKey)
     }
   }
 

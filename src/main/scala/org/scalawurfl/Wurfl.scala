@@ -53,18 +53,13 @@ class Wurfl(
     userAgentPrefixTrie.get(userAgent)
   }
 
-  private val nearestMatch: (String) => Option[Device] = (userAgent: String) => {
-
-    val candidates = userAgentPrefixTrie.nearest(userAgent)
-
-    if (candidates.nonEmpty) {
-      val matched = candidates.min(Ordering.by((e: (String, Device)) => ld(userAgent, e._1)))._2
-      Some(matched)
+  private val nearestMatch: (String) => Option[Device] = (userAgent: String) =>
+    userAgentPrefixTrie.nearest(userAgent) match {
+      case x if (x.nonEmpty) => Option(x.min(Ordering.by {
+        case (ua, device) => ld(userAgent, ua)
+      })._2)
+      case _ => None
     }
-    else {
-      None
-    }
-  }
 
   private def init(devices: Traversable[Device]): Trie[Device] = {
 

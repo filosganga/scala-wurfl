@@ -28,7 +28,17 @@ trait Repository extends Traversable[Device] {
 
   def apply(id: String): Device = get(id).get
 
-  def patch(patches: Traversable[DeviceEntry]*): Repository
+}
 
+trait Patchable[A <: Repository] {
+  self: A=>
+
+  def patch(patches: Traversable[DeviceEntry]*): A
+}
+
+trait Reloadable[A <: Repository] {
+  self: A=>
+
+  def reload(main: Traversable[DeviceEntry], patches: Traversable[DeviceEntry]*): A
 }
 
