@@ -30,9 +30,9 @@ trait Device {
 
   def userAgent: Option[String]
 
-  def capability(name: String): Option[String]
-
   def capabilities: Map[String, String]
+
+  def capability(name: String): Option[String] = capabilities.get(name)
 
   def apply(name: String): String = capability(name).get
 }

@@ -21,9 +21,12 @@ package org.scalawurfl.repository
 import org.scalawurfl.Device
 
 
-class InMemoryRepository(entries: Traversable[DeviceEntry], patches: Traversable[DeviceEntry]*) extends Repository {
+class InMemoryRepository(entries: Traversable[DeviceEntry], patches: Traversable[DeviceEntry]*)
+  extends Repository
+  with Patchable[InMemoryRepository]
+  with Reloadable[InMemoryRepository] {
 
-  val entriesById = patchEntries(entries.map(e => (e.id->e)).toMap, patches)
+  val entriesById = patchEntries(entries.map(e => (e.id -> e)).toMap, patches)
 
   def roots: Traversable[Device] = entries.filter(_.isRoot).map(device(_))
 
@@ -32,9 +35,7 @@ class InMemoryRepository(entries: Traversable[DeviceEntry], patches: Traversable
   }
 
   def foreach[U](f: (Device) => U) {
-    entries.foreach{entry =>
-      f(device(entry))
-    }
+    entries.foreach(x=> f(device(x)))
   }
 
   private def device(entry: DeviceEntry): Device = {
@@ -45,13 +46,10 @@ class InMemoryRepository(entries: Traversable[DeviceEntry], patches: Traversable
 
       def userAgent = entry.userAgent
 
-      def capability(name: String): Option[String] = entry.capabilities.get(name).orElse {
-        ancestor.flatMap(a => a.capability(name))
-      }
-
       def capabilities: Map[String, String] = {
-        (entry.capabilities /: ancestor){(owned, inherit)=>
-          inherit.capabilities ++ owned
+        (entry.capabilities /: ancestor) {
+          (owned, inherit) =>
+            inherit.capabilities ++ owned
         }
       }
 
@@ -69,18 +67,25 @@ class InMemoryRepository(entries: Traversable[DeviceEntry], patches: Traversable
   }
 
   def patch(patches: Traversable[DeviceEntry]*): InMemoryRepository = {
-    new InMemoryRepository(entriesById.values, patches:_*)
+    new InMemoryRepository(entriesById.values, patches: _*)
+  }
+
+
+  def reload(main: Traversable[DeviceEntry], patches: Traversable[DeviceEntry]*): InMemoryRepository = {
+    new InMemoryRepository(main, patches:_*)
   }
 
   private def patchEntries(sources: Map[String, DeviceEntry], patches: Seq[Traversable[DeviceEntry]]): Map[String, DeviceEntry] = {
-    (sources /: patches){(s,p)=>
-      patchEntries(s, p)
+    (sources /: patches) {
+      (s, p) =>
+        patchEntries(s, p)
     }
   }
 
   private def patchEntries(sources: Map[String, DeviceEntry], patchers: Traversable[DeviceEntry]): Map[String, DeviceEntry] = {
-    (sources /: patchers){(sources,patcher)=>
-      sources ++ patchEntries(sources, patcher)
+    (sources /: patchers) {
+      (sources, patcher) =>
+        sources ++ patchEntries(sources, patcher)
     }
   }
 
@@ -90,7 +95,7 @@ class InMemoryRepository(entries: Traversable[DeviceEntry], patches: Traversable
       case Some(source) => patchEntry(source, patcher)
     }
 
-    sources + (patched.id->patched)
+    sources + (patched.id -> patched)
   }
 
   private def patchEntry(patching: DeviceEntry, patcher: DeviceEntry): DeviceEntry = {
