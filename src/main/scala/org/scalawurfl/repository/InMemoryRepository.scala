@@ -26,7 +26,7 @@ class InMemoryRepository(entries: Traversable[DeviceEntry], patches: Traversable
   with Patchable[InMemoryRepository]
   with Reloadable[InMemoryRepository] {
 
-  val entriesById = patchEntries(entries.map(e => (e.id -> e)).toMap, patches)
+  val entriesById = patchEntries(entries.map(e => e.id -> e).toMap, patches)
 
   def roots: Traversable[Device] = entries.filter(_.isRoot).map(device(_))
 
