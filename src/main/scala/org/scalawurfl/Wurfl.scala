@@ -55,9 +55,9 @@ class Wurfl(
 
   private val nearestMatch: (String) => Option[Device] = (userAgent: String) =>
     userAgentPrefixTrie.nearest(userAgent) match {
-      case x if (x.nonEmpty) => Option(x.min(Ordering.by {
-        case (ua, device) => ld(userAgent, ua)
-      })._2)
+      case x if x.nonEmpty => {
+        Option(x.minBy{case (ua, device)=> ld(userAgent, ua)}._2)
+      }
       case _ => None
     }
 

@@ -9,7 +9,7 @@ object ScalaWurfl extends Build {
      name := "scala-wurfl",
      version := "1.0-SNAPSHOT",
      scalaVersion := "2.10.2",
-     crossScalaVersions := Seq("2.8.2", "2.9.2", "2.10.2"),
+     crossScalaVersions := Seq("2.10.0", "2.10.2"),
      licenses := Seq("Apache License, Version 2.0"->new URL("http://www.apache.org/licenses/LICENSE-2.0.html")),
      libraryDependencies ++= dependencies,
      autoCompilerPlugins := true

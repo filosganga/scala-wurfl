@@ -19,10 +19,10 @@
 package org.scalawurfl
 
 import org.specs2.mutable._
-import java.util.Date
+
 import org.specs2.specification.Scope
 import com.typesafe.config.ConfigFactory
-import org.scalawurfl.{Device, Headers, Wurfl}
+
 
 /**
  * TODO Document...

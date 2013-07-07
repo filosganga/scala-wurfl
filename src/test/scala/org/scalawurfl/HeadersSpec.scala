@@ -19,7 +19,6 @@
 package org.scalawurfl
 
 import org.specs2.mutable._
-import org.scalawurfl.Headers
 
 
 class HeadersSpec extends Specification {

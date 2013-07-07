@@ -19,7 +19,6 @@
 package org.scalawurfl.repository.xml
 
 import org.scalawurfl.repository.InMemoryRepository
-import org.scalawurfl.repository.xml.XmlResource
 
 import org.specs2.mutable._
 
