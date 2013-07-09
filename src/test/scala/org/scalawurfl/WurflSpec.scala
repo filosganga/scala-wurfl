@@ -24,13 +24,9 @@ import org.specs2.specification.Scope
 import com.typesafe.config.ConfigFactory
 
 
-/**
- * TODO Document...
- *
- * @author Filippo De Luca
- * @version 1.0 15/04/11/04/2011
- */
 class WurflSpec extends Specification {
+
+  val regressionThreshold = 5
 
   trait Wurfls extends Scope {
 
@@ -66,7 +62,7 @@ class WurflSpec extends Specification {
       errors.foreach(error => println("id: " + error._1.id + " is not in: " + error._3.mkString("[", ",", "]") + " for user-agent: " + error._2))
       println("Test effective duration: " + duration + "ms")
 
-      errors.size must beLessThanOrEqualTo(0)
+      errors.size must beLessThanOrEqualTo(regressionThreshold)
 
     }
   }
