@@ -1,9 +1,9 @@
 Unofficial WURFL Scala API
 ==========================
 This is an unofficial [WURFL](http://wurfl.sourceforge.net/) Scala API. It is based on a custom Patricia Trie
-implementation that is fast but not exact as the official APIs are.
+implementation that is fast but without the precision of the official APIs.
 
-It is available for Scala 2.8.2, 2.9.2, 2.10.0.
+It is available for Scala 2.10.0, 2.10.2.
 
 [![The Build Status](https://travis-ci.org/filosganga/scala-wurfl.png?branch=master)](https://travis-ci.org/filosganga/scala-wurfl)
 

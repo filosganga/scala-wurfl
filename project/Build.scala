@@ -4,8 +4,8 @@ import java.net.URL
 
 object ScalaWurfl extends Build {
    
-   val project = (Project("scala-wurfl", file(".")) settings(
-     organization := "org.scala-wurfl",
+   val project = (Project("scalawurfl", file(".")) settings(
+     organization := "org.scalawurfl",
      name := "scala-wurfl",
      version := "1.0-SNAPSHOT",
      scalaVersion := "2.10.2",
@@ -22,9 +22,14 @@ object ScalaWurfl extends Build {
      // The Nexus repo we're publishing to.
      publishTo <<= version { (v: String) =>
        val nexus = "https://oss.sonatype.org/"
-       if (v.trim.endsWith("SNAPSHOT")) Some("snapshots" at nexus + "content/repositories/snapshots") 
-       else                             Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+       if (v.trim.endsWith("SNAPSHOT")) {
+         Some("snapshots" at nexus + "content/repositories/snapshots")
+       }
+       else {
+         Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+       }
      },
+     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
      // Maven central cannot allow other repos.  We're ok here because the artifacts we
      // we use externally are *optional* dependencies.
      pomIncludeRepository := { x => false },
@@ -46,11 +51,6 @@ object ScalaWurfl extends Build {
            <id>filosganga</id>
            <name>Filippo De Luca</name>
            <url>http://filippodeluca.com</url>
-         </developer>
-         <developer>
-           <id>fantayeneh</id>
-           <name>Fantayeneh Asres Gizaw</name>
-           <url>http://fantayeneh.github.com</url>
          </developer>
        </developers>)
    )
