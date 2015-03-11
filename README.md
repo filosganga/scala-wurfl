@@ -1,7 +1,12 @@
 Unofficial WURFL Scala API
 ==========================
 This is an unofficial [WURFL](http://wurfl.sourceforge.net/) Scala API. It is based on a custom Patricia Trie
-implementation that is fast but without the precision of the official APIs.
+implementation that is fast but without the precision of the official APIs. *It is not (and never be) intended to be used in any production system.*
+
+The official ScientiaMobile WURFL Scala API has been released:
+ - Blog Post: [Scala Meet WURFL. WURFL Meet Scala.](http://www.scientiamobile.com/page/scala-meet-wurfl-wurfl-meet-scala)
+ - Download: [http://sourceforge.net/projects/wurfl/files/WURFL Scala/](http://sourceforge.net/projects/wurfl/files/WURFL%20Scala/)
+
 
 scala-wurfl is available to the Sonatype OSS Maven repository for Scala 2.10.0, 2.10.2:
 
@@ -16,6 +21,7 @@ The Scala WURFL API uses the [typesafe config library](https://github.com/typesa
 is shipped with a default configuration and default dataset (last available).
 
 The entrypoint for the API is the Wurfl object. To obtain a Wurfl object with the default configuration and dataset:
+    
     val wurfl = Wurfl().build()
 
 If you want to pass a different configuration:
