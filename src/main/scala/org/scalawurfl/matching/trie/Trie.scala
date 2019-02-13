@@ -87,11 +87,11 @@ case class NonEmptyTrie[+B](key: String, value: Option[B], children: Map[Char, T
     case (k,v) if(k == key) => {
       new NonEmptyTrie(k, Some(v), children)
     }
-    case (k,v) if(k.contains(key)) => {
+    case (k,v) if(k.indexOf(key) == 0) => {
       val newKey = k.substring(key.length)
       new NonEmptyTrie(key, value, children + (newKey(0)-> addToChildren(newKey, v)))
     }
-    case (k, v) if(key.contains(k)) => {
+    case (k, v) if(key.indexOf(k) == 0) => {
       val newKey = key.substring(k.length)
       new NonEmptyTrie[B1](k, Some(v), Map(newKey(0)->new NonEmptyTrie[B1](newKey, value, children)))
     }
